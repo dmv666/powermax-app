@@ -90,7 +90,7 @@ export default function RegisterPage() {
                 id="email"
                 type="email"
                 placeholder="correo@ejemplo.com"
-                className="bg-white/80"
+                className="bg-white/80 rounded-lg"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 required
@@ -105,7 +105,7 @@ export default function RegisterPage() {
                 id="name"
                 type="text"
                 placeholder="Tu nombre"
-                className="bg-white/80"
+                className="bg-white/80 rounded-lg"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 required
@@ -120,7 +120,7 @@ export default function RegisterPage() {
                 id="password"
                 type="password"
                 placeholder="••••••••"
-                className="bg-white/80"
+                className="bg-white/80 rounded-lg"
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 required
@@ -135,7 +135,7 @@ export default function RegisterPage() {
                 id="confirmPassword"
                 type="password"
                 placeholder="••••••••"
-                className="bg-white/80"
+                className="bg-white/80 rounded-lg"
                 value={formData.confirmPassword}
                 onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
                 required
@@ -146,10 +146,10 @@ export default function RegisterPage() {
               Registrarme
             </Button>
 
-            <div className="text-center">
-              <span className="text-white">O, Si tienes una cuenta</span>
+            <div className="text-center ">
+              <span className="text-white pr-5">O, Si tienes una cuenta</span>
               <Link href="/auth/login">
-                <Button variant="link" className="text-white">
+                <Button variant="default" className="text-white">
                   Iniciar Sesion
                 </Button>
               </Link>

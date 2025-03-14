@@ -2,8 +2,12 @@
 
 import type React from "react"
 import { createContext, useContext, useEffect, useState } from "react"
-import type { User } from "firebase/auth"
+import { GoogleAuthProvider, signInWithPopup, User } from "firebase/auth"
 import { auth } from "@/lib/firebase"
+import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore"
+
+const googleProvider = new GoogleAuthProvider()
+const db = getFirestore()
 
 type AuthContextType = {
   user: User | null
@@ -11,6 +15,31 @@ type AuthContextType = {
 }
 
 const AuthContext = createContext<AuthContextType>({ user: null, loading: true })
+
+export const signInWithGoogle = async () => {
+  try {
+    const result = await signInWithPopup(auth, googleProvider)
+    const user = result.user
+
+    const userRef = doc(db, "users", user.uid)
+    const userSnap = await getDoc(userRef)
+
+    if (!userSnap.exists()) {
+      await setDoc(userRef, {
+        uid: user.uid,
+        email: user.email,
+        displayName: user.displayName,
+        photoURL: user.photoURL,
+        createdAt: new Date().toISOString()
+      })
+    }
+
+    return user
+  } catch (error) {
+    console.error("Error al iniciar sesión con Google:", error)
+    throw error
+  }
+}
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null)
@@ -30,4 +59,3 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 }
 
 export const useAuth = () => useContext(AuthContext)
-
