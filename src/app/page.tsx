@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import Image from "next/image";
 import Link from "next/link";
-import { Clock, Calendar, BarChart } from "lucide-react";
+import { Clock, Calendar, BarChart, X } from "lucide-react";
+import Modal from "@/components/ui/Modal";
 
 const images = [
   "https://res.cloudinary.com/sdhsports/image/upload/v1740148816/Designer_3_i730su.jpg",
@@ -15,6 +16,10 @@ const images = [
 
 export default function Home() {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [showModal, setShowModal] = useState(false);
+  const [showContactModal, setShowContactModal] = useState(false);
+  const [showTermsModal, setShowTermsModal] = useState(false);
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -23,6 +28,44 @@ export default function Home() {
 
     return () => clearInterval(interval);
   }, []);
+
+  const handleOpenModal = () => {
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+  };
+
+  const handleLoginRedirect = () => {
+    setShowModal(false);
+    window.location.href = "/auth/login";
+  };
+
+  // Manejadores para los modales del footer
+  const handleOpenContactModal = () => {
+    setShowContactModal(true);
+  };
+
+  const handleCloseContactModal = () => {
+    setShowContactModal(false);
+  };
+
+  const handleOpenTermsModal = () => {
+    setShowTermsModal(true);
+  };
+
+  const handleCloseTermsModal = () => {
+    setShowTermsModal(false);
+  };
+
+  const handleOpenPrivacyModal = () => {
+    setShowPrivacyModal(true);
+  };
+
+  const handleClosePrivacyModal = () => {
+    setShowPrivacyModal(false);
+  };
 
   return (
     <main className="min-h-screen">
@@ -47,13 +90,12 @@ export default function Home() {
         </div>
         <div className="flex gap-4">
           <Link href="/auth/login">
-          <Button variant="default">Iniciar Sesión</Button>
+            <Button variant="default">Iniciar Sesión</Button>
           </Link>
 
           <Link href="/auth/register">
-          <Button variant="default">Registrarse</Button>
+            <Button variant="default">Registrarse</Button>
           </Link>
-
         </div>
       </nav>
 
@@ -77,7 +119,7 @@ export default function Home() {
           <p className="text-lg mt-2">Elige tu rutina ideal y alcanza tus metas fitness</p>
           <div className="flex flex-wrap justify-center gap-4 mt-6">
             <Button variant="secondary" size="lg">Explorar Rutinas</Button>
-            <Button variant="secondary" size="lg">Calcular IMC</Button>
+            <Button variant="secondary" size="lg" onClick={handleOpenModal}>Calcular IMC</Button>
             <Button variant="secondary" size="lg">Visitar Tienda</Button>
           </div>
         </div>
@@ -142,11 +184,171 @@ export default function Home() {
       {/* Footer */}
       <footer className="bg-gray-100 py-6 px-4">
         <div className="max-w-7xl mx-auto flex justify-end gap-6 text-sm text-gray-600">
-          <Link href="/contacto" className="hover:text-gray-900">Contacto</Link>
-          <Link href="/terminos" className="hover:text-gray-900">Términos y Condiciones</Link>
-          <Link href="/privacidad" className="hover:text-gray-900">Política de Privacidad</Link>
+          <button onClick={handleOpenContactModal} className="hover:text-gray-900">Contacto</button>
+          <button onClick={handleOpenTermsModal} className="hover:text-gray-900">Términos y Condiciones</button>
+          <button onClick={handleOpenPrivacyModal} className="hover:text-gray-900">Política de Privacidad</button>
         </div>
       </footer>
+
+      {/* Modal de IMC */}
+      {showModal && (
+        <Modal onClose={handleCloseModal}>
+          <section className="flex flex-col items-center justify-center text-center bg-white p-8 rounded-xl shadow-lg transition-all duration-300 animate-in fade-in slide-in-from-bottom-4 zoom-in-95">
+            <h2 className="text-xl font-bold mb-4">¿Quieres calcular tu IMC?</h2>
+            <p>Para hacer esto debes iniciar sesión. ¿Deseas hacerlo?</p>
+            <div className="flex gap-4 mt-6">
+              <Button onClick={handleLoginRedirect}>Sí, Iniciar Sesión</Button>
+              <Button variant="secondary" onClick={handleCloseModal}>Cancelar</Button>
+            </div>
+          </section>
+        </Modal>
+      )}
+
+      {/* Modal de Contacto */}
+      {showContactModal && (
+        <Modal onClose={handleCloseContactModal}>
+          <section className="flex flex-col items-start bg-white p-8 rounded-xl shadow-lg transition-all duration-300 animate-in fade-in slide-in-from-bottom-4 zoom-in-95 max-w-2xl w-full">
+            <div className="flex justify-between items-center w-full mb-4">
+              <h2 className="text-2xl font-bold">Contacto</h2>
+              <button onClick={handleCloseContactModal} className="text-gray-500 hover:text-gray-700">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="space-y-4 w-full">
+              <p className="text-gray-700">Estamos aquí para ayudarte. Contáctanos a través de los siguientes medios:</p>
+              
+              <div className="pt-2">
+                <h3 className="font-semibold mb-1">Correo Electrónico</h3>
+                <p className="text-gray-600">soporte@powermax.com</p>
+              </div>
+              
+              <div className="pt-2">
+                <h3 className="font-semibold mb-1">Teléfono</h3>
+                <p className="text-gray-600">+123 456 789</p>
+              </div>
+              
+              <div className="pt-2">
+                <h3 className="font-semibold mb-1">Horario de Atención</h3>
+                <p className="text-gray-600">Lunes a Viernes: 9:00 - 18:00<br />Sábados: 10:00 - 14:00</p>
+              </div>
+              
+              <div className="pt-2">
+                <h3 className="font-semibold mb-1">Dirección</h3>
+                <p className="text-gray-600">Calle Fitness #123<br />Ciudad Deportiva, CP 12345</p>
+              </div>
+            </div>
+            <div className="mt-6 w-full">
+              <Button variant="secondary" onClick={handleCloseContactModal} className="w-full">Cerrar</Button>
+            </div>
+          </section>
+        </Modal>
+      )}
+
+      {/* Modal de Términos y Condiciones */}
+      {showTermsModal && (
+   <Modal onClose={handleCloseTermsModal}>
+   <section className="flex flex-col items-start bg-white p-8 rounded-xl shadow-lg transition-all duration-300 animate-in fade-in slide-in-from-bottom-4 zoom-in-95 max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+     {/* Header fijo con borde y fondo sólido */}
+     <div className="flex justify-between items-center w-full top-0 bg-white pb-4 border-b z-10">
+       <h2 className="text-2xl font-bold">Términos y Condiciones</h2>
+       <button onClick={handleCloseTermsModal} className="text-gray-500 hover:text-gray-700">
+         <X className="h-5 w-5" />
+       </button>
+     </div>
+     
+     {/* Contenido con espacio superior */}
+     <div className="space-y-4 w-full pt-6 mt-2">
+       <p className="text-gray-700">Última actualización: 14 de marzo, 2025</p>
+       
+       {/* Aseguramos que el primer elemento tenga suficiente espacio */}
+       <div className="mt-6">
+         <h3 className="font-semibold text-lg mb-1">1. Aceptación de los Términos</h3>
+         <p className="text-gray-600">Al acceder y utilizar los servicios de PowerMAX, aceptas estar vinculado por estos términos y condiciones. Si no estás de acuerdo con alguna parte de estos términos, no podrás acceder al servicio.</p>
+       </div>
+       
+       <div>
+         <h3 className="font-semibold text-lg mb-1">2. Uso del Servicio</h3>
+         <p className="text-gray-600">PowerMAX proporciona una plataforma para acceder a rutinas de ejercicio y contenido relacionado con el fitness. Todo el contenido ofrecido en nuestra plataforma es solo para fines informativos y educativos. Siempre debes consultar con un profesional de la salud antes de comenzar cualquier programa de ejercicio.</p>
+       </div>
+       
+       <div>
+         <h3 className="font-semibold text-lg mb-1">3. Cuentas de Usuario</h3>
+         <p className="text-gray-600">Al crear una cuenta en PowerMAX, eres responsable de mantener la seguridad de tu cuenta y contraseña. La empresa no puede y no será responsable de ninguna pérdida o daño por tu incumplimiento de esta obligación de seguridad.</p>
+       </div>
+       
+       <div>
+         <h3 className="font-semibold text-lg mb-1">4. Limitación de Responsabilidad</h3>
+         <p className="text-gray-600">En ningún caso PowerMAX, sus directores, empleados o agentes serán responsables de cualquier daño directo, indirecto, incidental, especial o consecuente que resulte del uso o la imposibilidad de usar el servicio.</p>
+       </div>
+       
+       <div>
+         <h3 className="font-semibold text-lg mb-1">5. Cambios en los Términos</h3>
+         <p className="text-gray-600">Nos reservamos el derecho, a nuestra sola discreción, de modificar o reemplazar estos términos en cualquier momento. Si una revisión es material, intentaremos proporcionar un aviso con al menos 30 días de anticipación.</p>
+       </div>
+       
+       <div>
+         <h3 className="font-semibold text-lg mb-1">6. Cancelación</h3>
+         <p className="text-gray-600">Puedes cancelar tu cuenta en cualquier momento. Todas las disposiciones de los Términos que por su naturaleza deberían sobrevivir a la terminación sobrevivirán, incluyendo, sin limitación, las disposiciones de propiedad, renuncias de garantía y limitaciones de responsabilidad.</p>
+       </div>
+     </div>
+     
+     <div className="mt-6 w-full">
+       <Button variant="secondary" onClick={handleCloseTermsModal} className="w-full">Cerrar</Button>
+     </div>
+   </section>
+        </Modal>
+      )}
+
+      {/* Modal de Política de Privacidad */}
+      {showPrivacyModal && (
+        <Modal onClose={handleClosePrivacyModal}>
+          <section className="flex flex-col items-start bg-white p-8 rounded-xl shadow-lg transition-all duration-300 animate-in fade-in slide-in-from-bottom-4 zoom-in-95 max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+            <div className="flex justify-between items-center w-full mb-4 top-0 bg-white pb-2">
+              <h2 className="text-2xl font-bold">Política de Privacidad</h2>
+              <button onClick={handleClosePrivacyModal} className="text-gray-500 hover:text-gray-700">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="space-y-4 w-full">
+              <p className="text-gray-700">Última actualización: 14 de marzo, 2025</p>
+              
+              <div>
+                <h3 className="font-semibold text-lg mb-1">1. Recopilación de Información</h3>
+                <p className="text-gray-600">Recopilamos varios tipos de información para proporcionar y mejorar nuestro servicio, incluyendo pero no limitado a información personal como nombre, dirección de correo electrónico, edad, altura y peso (para calculadoras de IMC), así como información de uso como su interacción con nuestra plataforma.</p>
+              </div>
+              
+              <div>
+                <h3 className="font-semibold text-lg mb-1">2. Uso de la Información</h3>
+                <p className="text-gray-600">Utilizamos la información recopilada para proporcionar, mantener y mejorar nuestros servicios, para comunicarnos con usted, y para desarrollar nuevos servicios. Sus datos de salud y fitness solo se utilizan para proporcionar cálculos y recomendaciones personalizadas.</p>
+              </div>
+              
+              <div>
+                <h3 className="font-semibold text-lg mb-1">3. Compartir de Información</h3>
+                <p className="text-gray-600">No vendemos, intercambiamos ni transferimos su información personal a terceros sin su consentimiento, excepto cuando sea necesario para proporcionar un servicio que haya solicitado.</p>
+              </div>
+              
+              <div>
+                <h3 className="font-semibold text-lg mb-1">4. Protección de Datos</h3>
+                <p className="text-gray-600">Implementamos una variedad de medidas de seguridad para mantener la seguridad de su información personal. Sus datos personales se almacenan en redes seguras y solo son accesibles por un número limitado de personas.</p>
+              </div>
+              
+              <div>
+                <h3 className="font-semibold text-lg mb-1">5. Cookies</h3>
+                <p className="text-gray-600">Utilizamos cookies para mejorar su experiencia en nuestro sitio web. Puede elegir que su navegador rechace las cookies, pero esto puede impedir que aproveche algunas funcionalidades de nuestro servicio.</p>
+              </div>
+              
+              <div>
+                <h3 className="font-semibold text-lg mb-1">6. Sus Derechos</h3>
+                <p className="text-gray-600">Tiene derecho a acceder, corregir o eliminar su información personal. Si desea ejercer alguno de estos derechos, contáctenos a través de la información proporcionada en la sección de contacto.</p>
+              </div>
+            </div>
+            <div className="mt-6 w-full">
+              <Button variant="secondary" onClick={handleClosePrivacyModal} className="w-full">Cerrar</Button>
+            </div>
+          </section>
+        </Modal>
+      )}
+
     </main>
   );
 }

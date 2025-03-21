@@ -33,13 +33,15 @@ export const IMCProvider = ({ children }: { children: ReactNode }) => {
     const fetchIMCData = async () => {
       if (!user) return
 
-      const imcRef = doc(db, "imcData", user.uid)
-      const imcSnap = await getDoc(imcRef)
+      const userRef = doc(db, "users", user.uid)
+      const userSnap = await getDoc(userRef)
 
-      if (imcSnap.exists()) {
-        setImcData(imcSnap.data() as IMCData)
+      if (userSnap.exists()) {
+        const userData = userSnap.data()
+        if (userData.imcData) {
+          setImcData(userData.imcData)
+        }
       }
-
       setLoading(false)
     }
 
@@ -48,11 +50,17 @@ export const IMCProvider = ({ children }: { children: ReactNode }) => {
 
   const saveIMCData = async (data: IMCData) => {
     if (!user) return
-
-    const imcRef = doc(db, "imcData", user.uid)
-    await setDoc(imcRef, data)
-    setImcData(data)
+  
+    const userRef = doc(db, "users", user.uid) // Usamos la colección "users"
+    
+    try {
+      await setDoc(userRef, { imcData: data }, { merge: true }) // Usamos merge para no sobreescribir otros datos del usuario
+      setImcData(data)
+    } catch (error) {
+      console.error("Error guardando los datos de IMC:", error)
+    }
   }
+  
 
   return (
     <IMCContext.Provider value={{ imcData, loading, saveIMCData }}>
