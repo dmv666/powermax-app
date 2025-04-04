@@ -102,6 +102,7 @@ useEffect(() => {
             <Link href="/rutinas" className="hover:text-gray-600">Rutinas</Link>
             <Link href="/store" className="hover:text-gray-600">Tienda</Link>
             <Link href="/acerca-de" className="hover:text-gray-600">Acerca De PowerMAX</Link>
+            <Link href="/poseDetection" className="hover:text-gray-600">Detector de Ejercicios</Link>
           </div>
         </div>
         <div className="flex gap-4">
