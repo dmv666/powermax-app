@@ -27,20 +27,14 @@ export default function StorePage() {
   const { user } = useAuth();
   const router = useRouter();
   
-  // Arreglo de productos con id, name, price e image
   const [products, setProducts] = useState<Product[]>([]);
-  
-  // Para agregar un producto, guardamos el precio como string y la URL de la imagen
   const [newProduct, setNewProduct] = useState<{ name: string; price: string; image: string }>({
     name: "",
     price: "",
     image: ""
   });
   
-  // Lógica simple para determinar si es admin
   const [isAdmin, setIsAdmin] = useState(false);
-  
-  // Add loading state
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -50,13 +44,12 @@ export default function StorePage() {
     }
   }, [user]);
 
-  // Obtener los productos de Firestore
   const fetchProducts = async () => {
     setLoading(true);
     try {
       const querySnapshot = await getDocs(collection(db, "products"));
       const productList: Product[] = querySnapshot.docs.map((document) => {
-        const data = document.data() as Omit<Product, "id">; // name, price, image
+        const data = document.data() as Omit<Product, "id">;
         return {
           id: document.id,
           name: data.name,
@@ -72,7 +65,6 @@ export default function StorePage() {
     }
   };
 
-  // Agregar un producto (convertir price a number)
   const handleAddProduct = async () => {
     if (!newProduct.name || !newProduct.price || !newProduct.image) return;
     const priceNumber = parseFloat(newProduct.price);
@@ -95,7 +87,6 @@ export default function StorePage() {
     }
   };
 
-  // Eliminar un producto por id
   const handleDeleteProduct = async (id: string) => {
     setLoading(true);
     try {
@@ -107,12 +98,10 @@ export default function StorePage() {
     }
   };
 
-  // Función para ver perfil
   const handleViewProfile = () => {
     router.push("/dashboard/profile");
   };
 
-  // Función para cerrar sesión
   const handleLogout = async () => {
     try {
       await signOut(auth);
@@ -122,23 +111,17 @@ export default function StorePage() {
     }
   };
 
-  // Show loading spinner while loading
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-r from-blue-50 to-indigo-50">
-        <div className="relative">
-          <div className="w-16 h-16 border-4 border-blue-200 rounded-full"></div>
-          <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full absolute top-0 left-0 animate-spin"></div>
-        </div>
+        <div className="relative w-16 h-16 border-4 border-blue-200 rounded-full animate-spin border-t-transparent"></div>
         <p className="mt-4 text-lg font-medium text-gray-700">Cargando tienda de PowerMAX...</p>
-        <p className="text-sm text-gray-500 mt-2">Estamos preparando tus productos, se paciente</p>
       </div>
     );
   }
 
   return (
     <div className="min-h-screen">
-      {/* Navbar */}
       <nav className="bg-white py-4 px-6 flex items-center justify-between shadow-md">
         <div className="flex items-center gap-8">
           <Link href="/" className="flex items-center">
@@ -151,50 +134,25 @@ export default function StorePage() {
             />
             <span className="text-xl font-bold hidden sm:block">PowerMAX</span>
           </Link>
-          <div className="hidden md:flex gap-4">
-            <Link href="/rutinas" className="hover:text-gray-600">Rutinas</Link>
-            <Link href="/store" className="hover:text-gray-600 font-semibold">Tienda</Link>
-            <Link href="/acerca-de" className="hover:text-gray-600">Acerca De PowerMAX</Link>
-          </div>
-        </div>
-        <div className="flex gap-4">
-          {user ? (
-            <>
-              <Button onClick={handleViewProfile}>Ver Perfil</Button>
-              <Button onClick={handleLogout}>Cerrar Sesión</Button>
-            </>
-          ) : (
-            <>
-              <Button onClick={() => router.push("/auth/login")}>Iniciar Sesión</Button>
-              <Button onClick={() => router.push("/auth/register")}>Registrarse</Button>
-            </>
-          )}
         </div>
       </nav>
 
-      {/* Contenido de la tienda */}
       <div className="p-6">
         <h1 className="text-3xl font-bold">Tienda</h1>
-
-        {/* Lista de productos */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
           {products.map((product) => (
-            <div key={product.id} className="p-4 border rounded-lg shadow-md">
+            <div key={product.id} className="p-4 border rounded-xl shadow-lg bg-white hover:shadow-xl transition-transform transform hover:scale-105">
               <Image
                 src={product.image}
                 alt={product.name}
-                width={300}
-                height={200}
-                className="rounded mb-4"
+                width={250}
+                height={180}
+                className="rounded-lg object-cover h-48"
               />
-              <h2 className="text-xl font-semibold">{product.name}</h2>
-              <p className="text-lg">${product.price}</p>
+              <h2 className="text-xl font-semibold mt-2">{product.name}</h2>
+              <p className="text-lg text-gray-700">${product.price}</p>
               {isAdmin && (
-                <Button
-                  onClick={() => handleDeleteProduct(product.id)}
-                  variant="destructive"
-                  className="mt-2"
-                >
+                <Button onClick={() => handleDeleteProduct(product.id)} variant="destructive" className="mt-2">
                   Eliminar
                 </Button>
               )}
@@ -202,40 +160,13 @@ export default function StorePage() {
           ))}
         </div>
 
-        {/* Formulario de agregar producto (solo admin) */}
         {isAdmin && (
           <div className="mt-6 p-4 border rounded-lg max-w-md">
             <h2 className="text-2xl font-bold mb-4">Agregar Producto</h2>
-            <input
-              type="text"
-              placeholder="Nombre"
-              value={newProduct.name}
-              onChange={(e) =>
-                setNewProduct({ ...newProduct, name: e.target.value })
-              }
-              className="border p-2 rounded w-full mt-2"
-            />
-            <input
-              type="number"
-              placeholder="Precio"
-              value={newProduct.price}
-              onChange={(e) =>
-                setNewProduct({ ...newProduct, price: e.target.value })
-              }
-              className="border p-2 rounded w-full mt-2"
-            />
-            <input
-              type="text"
-              placeholder="URL de la imagen"
-              value={newProduct.image}
-              onChange={(e) =>
-                setNewProduct({ ...newProduct, image: e.target.value })
-              }
-              className="border p-2 rounded w-full mt-2"
-            />
-            <Button onClick={handleAddProduct} className="mt-4">
-              Agregar
-            </Button>
+            <input type="text" placeholder="Nombre" value={newProduct.name} onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })} className="border p-2 rounded w-full mt-2" />
+            <input type="number" placeholder="Precio" value={newProduct.price} onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })} className="border p-2 rounded w-full mt-2" />
+            <input type="text" placeholder="URL de la imagen" value={newProduct.image} onChange={(e) => setNewProduct({ ...newProduct, image: e.target.value })} className="border p-2 rounded w-full mt-2" />
+            <Button onClick={handleAddProduct} className="mt-4">Agregar</Button>
           </div>
         )}
       </div>

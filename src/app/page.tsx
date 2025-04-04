@@ -221,7 +221,7 @@ export default function Home() {
       {/* Modal de IMC */}
       {showModal && (
         <Modal onClose={handleCloseModal}>
-          <section className="flex flex-col items-center justify-center text-center bg-white p-8 rounded-xl shadow-lg transition-all duration-300 animate-in fade-in slide-in-from-bottom-4 zoom-in-95">
+          <section className="flex flex-col items-center justify-center text-center bg-white p-8 rounded-xl transition-all duration-300 animate-in fade-in slide-in-from-bottom-4 zoom-in-95">
             <h2 className="text-xl font-bold mb-4">¿Quieres calcular tu IMC?</h2>
             <p>Para hacer esto debes iniciar sesión. ¿Deseas hacerlo?</p>
             <div className="flex gap-4 mt-6">
