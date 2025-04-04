@@ -44,8 +44,8 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="min-h-screen relative flex items-center justify-center overflow-hidden">
-      {/* Imagen de fondo */}
+    <main className="min-h-screen relative flex flex-col overflow-hidden">
+      {/* Imagen de fondo (ahora debajo del navbar) */}
       <div className="absolute inset-0 z-0">
         <Image
           src="https://res.cloudinary.com/sdhsports/image/upload/v1740153481/Designer_5_dpeytw.jpg"
@@ -56,79 +56,100 @@ export default function LoginPage() {
         />
       </div>
 
-      {/* Logo */}
-      <Link href="/" className="absolute top-4 left-4 flex items-center gap-2 z-10">
-        <Image
-          src="https://res.cloudinary.com/sdhsports/image/upload/v1739534621/Designer_l6amas.png"
-          alt="PowerMAX Logo"
-          width={60}
-          height={60}
-          className="rounded-full"
-        />
-        <span className="text-white text-2xl font-bold">PowerMAX</span>
-      </Link>
+      {/* Navbar fijo en la parte superior */}
+      <nav className="w-full bg-white py-4 px-6 flex items-center justify-between shadow-md z-20 relative">
+        <div className="flex items-center gap-8">
+          <Link href="/" className="flex items-center">
+            <Image
+              src="https://res.cloudinary.com/sdhsports/image/upload/v1742563367/powermax_logo_oficial_awxper.png"
+              alt="PowerMAX Logo"
+              width={80}
+              height={80}
+              className="mr-2 rounded-full"
+            />
+            <span className="text-xl font-bold text-black">PowerMAX</span>
+          </Link>
+          <div className="hidden md:flex gap-6">
+            <Link href="/rutinas" className="text-black hover:text-gray-600 font-medium">Rutinas</Link>
+            <Link href="/store" className="text-black hover:text-gray-600 font-medium">Tienda</Link>
+            <Link href="/acerca-de" className="text-black hover:text-gray-600 font-medium">Acerca De PowerMAX</Link>
+          </div>
+        </div>
+        <div className="flex gap-4">
+          <Link href="/auth/login">
+            <Button variant="default" disabled>Iniciar Sesión</Button>
+          </Link>
 
-      {/* Formulario */}
-      <div className="relative z-10 w-full max-w-md mx-4">
-        <div className="backdrop-blur-md bg-white/30 p-8 rounded-2xl shadow-lg">
-          <h1 className="text-2xl font-bold text-white mb-6 text-center">Iniciar Sesión</h1>
+          <Link href="/auth/register">
+            <Button variant="default">Registrarse</Button>
+          </Link>
+        </div>
+      </nav>
 
-          {error && <p className="text-red-500 mb-4">{error}</p>}
+      {/* Contenido centrado */}
+      <div className="flex-1 flex items-center justify-center z-10 px-4">
+        {/* Formulario */}
+        <div className="w-full max-w-md">
+          <div className="backdrop-blur-md bg-white/30 p-8 rounded-2xl shadow-lg">
+            <h1 className="text-2xl font-bold text-white mb-6 text-center">Iniciar Sesión</h1>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email" className="text-white">
-                Email
-              </Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="ejemplo@powermax.com"
-                className="bg-white/80 rounded-lg"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                required
-              />
-            </div>
+            {error && <p className="text-red-500 mb-4">{error}</p>}
 
-            <div className="space-y-2">
-              <Label htmlFor="password" className="text-white">
-                Contraseña
-              </Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="••••••••••"
-                className="bg-white/80 rounded-lg"
-                value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                required
-              />
-            </div>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-white">
+                  Email
+                </Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="ejemplo@powermax.com"
+                  className="bg-white/80 rounded-lg"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  required
+                />
+              </div>
 
-            <Button type="submit" className="w-full" variant="default">
-              Iniciar Sesión
-            </Button>
-            <h3 className="text-white text-center"> O</h3>
-            <Button onClick={handleGoogleSignIn} className="w-full bg-red-700 hover:bg-red-800 text-white" type="button">
-              Continuar con Google
-              <Image
-                src="https://res.cloudinary.com/sdhsports/image/upload/v1740757857/63fc8fa0-2929-4a04-b8c8-20ed8f0cb0af-removebg-preview_ziflu2.png"
-                alt="Google Logo"
-                width={20}
-                height={20}
-              />
-            </Button>
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-white">
+                  Contraseña
+                </Label>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="••••••••••"
+                  className="bg-white/80 rounded-lg"
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  required
+                />
+              </div>
 
-            <div className="text-center">
-              <span className="text-white pr-3">¿No tienes una cuenta?</span>
-              <Link href="/auth/register">
-                <Button variant="default" className="text-white">
-                  Registrarse
-                </Button>
-              </Link>
-            </div>
-          </form>
+              <Button type="submit" className="w-full" variant="default">
+                Iniciar Sesión
+              </Button>
+              <h3 className="text-white text-center"> O</h3>
+              <Button onClick={handleGoogleSignIn} className="w-full bg-red-700 hover:bg-red-800 text-white" type="button">
+                Continuar con Google
+                <Image
+                  src="https://res.cloudinary.com/sdhsports/image/upload/v1740757857/63fc8fa0-2929-4a04-b8c8-20ed8f0cb0af-removebg-preview_ziflu2.png"
+                  alt="Google Logo"
+                  width={20}
+                  height={20}
+                />
+              </Button>
+
+              <div className="text-center">
+                <span className="text-white pr-3">¿No tienes una cuenta?</span>
+                <Link href="/auth/register">
+                  <Button variant="default" className="text-white">
+                    Registrarse
+                  </Button>
+                </Link>
+              </div>
+            </form>
+          </div>
         </div>
       </div>
     </main>

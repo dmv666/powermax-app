@@ -20,13 +20,22 @@ export default function Home() {
   const [showContactModal, setShowContactModal] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Simulate loading time
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 3000);
+
     const interval = setInterval(() => {
       setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
     }, 4000); // Cambia cada 4 segundos
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timer);
+    };
   }, []);
 
   const handleOpenModal = () => {
@@ -67,24 +76,43 @@ export default function Home() {
     setShowPrivacyModal(false);
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
+        <div className="relative w-32 h-32 mb-8">
+          <Image
+            src="https://res.cloudinary.com/sdhsports/image/upload/v1742563367/powermax_logo_oficial_awxper.png"
+            alt="PowerMAX Logo"
+            layout="fill"
+            objectFit="contain"
+            className="rounded-full"
+          />
+        </div>
+        <div className="w-16 h-16 border-t-4 border-blue-500 border-solid rounded-full animate-spin"></div>
+        <p className="mt-8 text-xl font-semibold text-gray-700">Cargando PowerMAX...</p>
+        <p className="mt-2 text-gray-500">Preparando tu experiencia fitness</p>
+      </div>
+    );
+  }
+
   return (
     <main className="min-h-screen">
       {/* Navbar */}
-      <nav className="bg-background py-4 px-6 flex items-center justify-between">
+      <nav className="bg-background py-4 px-6 flex items-center sticky justify-between">
         <div className="flex items-center gap-8">
           <Link href="/" className="flex items-center">
             <Image
-              src="https://res.cloudinary.com/sdhsports/image/upload/v1739534621/Designer_l6amas.png"
+              src="https://res.cloudinary.com/sdhsports/image/upload/v1742563367/powermax_logo_oficial_awxper.png"
               alt="PowerMAX Logo"
               width={80}
               height={80}
-              className="mr-2"
+              className="mr-2 rounded-full"
             />
             <span className="text-xl font-bold">PowerMAX</span>
           </Link>
           <div className="hidden md:flex gap-4">
             <Link href="/rutinas" className="hover:text-gray-600">Rutinas</Link>
-            <Link href="/tienda" className="hover:text-gray-600">Tienda</Link>
+            <Link href="/store" className="hover:text-gray-600">Tienda</Link>
             <Link href="/acerca-de" className="hover:text-gray-600">Acerca De PowerMAX</Link>
           </div>
         </div>
