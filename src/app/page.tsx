@@ -17,6 +17,7 @@ const images = [
 export default function Home() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showModal, setShowModal] = useState(false);
+  const [showModalTienda, setShowModalTienda] = useState(false);
   const [showContactModal, setShowContactModal] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
@@ -42,8 +43,16 @@ export default function Home() {
     setShowModal(true);
   };
 
+  const handleOpenModalTienda = () => {
+    setShowModalTienda(true);
+  };
+
   const handleCloseModal = () => {
     setShowModal(false);
+  };
+
+ const handleCloseModalTienda = () => {
+    setShowModalTienda(false);
   };
 
   const handleLoginRedirect = () => {
@@ -111,9 +120,9 @@ export default function Home() {
             <span className="text-xl font-bold">PowerMAX</span>
           </Link>
           <div className="hidden md:flex gap-4">
-            <Link href="/rutinas" className="hover:text-gray-600">Rutinas</Link>
+            <Link href="/rutines" className="hover:text-gray-600">Rutinas</Link>
             <Link href="/store" className="hover:text-gray-600">Tienda</Link>
-            <Link href="/acerca-de" className="hover:text-gray-600">Acerca De PowerMAX</Link>
+            <Link href="/about-us" className="hover:text-gray-600">Acerca De PowerMAX</Link>
           </div>
         </div>
         <div className="flex gap-4">
@@ -148,7 +157,7 @@ export default function Home() {
           <div className="flex flex-wrap justify-center gap-4 mt-6">
             <Button variant="secondary" size="lg">Explorar Rutinas</Button>
             <Button variant="secondary" size="lg" onClick={handleOpenModal}>Calcular IMC</Button>
-            <Button variant="secondary" size="lg">Visitar Tienda</Button>
+            <Button variant="secondary" size="lg" onClick={handleOpenModalTienda}>Visitar Tienda</Button>
           </div>
         </div>
       </section>
@@ -227,6 +236,20 @@ export default function Home() {
             <div className="flex gap-4 mt-6">
               <Button onClick={handleLoginRedirect}>Sí, Iniciar Sesión</Button>
               <Button variant="secondary" onClick={handleCloseModal}>Cancelar</Button>
+            </div>
+          </section>
+        </Modal>
+      )}
+
+            {/* Modal de IMC */}
+      {showModalTienda && (
+        <Modal onClose={handleCloseModalTienda}>
+          <section className="flex flex-col items-center justify-center text-center bg-white p-8 rounded-xl transition-all duration-300 animate-in fade-in slide-in-from-bottom-4 zoom-in-95">
+            <h2 className="text-xl font-bold mb-4">¿Quieres ingresar a la Tienda?</h2>
+            <p>Para hacer esto debes iniciar sesión. ¿Deseas hacerlo?</p>
+            <div className="flex gap-4 mt-6">
+              <Button onClick={handleLoginRedirect}>Sí, Iniciar Sesión</Button>
+              <Button variant="secondary" onClick={handleCloseModalTienda}>Cancelar</Button>
             </div>
           </section>
         </Modal>

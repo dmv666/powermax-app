@@ -70,7 +70,7 @@ export default function LoginPage() {
             <span className="text-xl font-bold text-black">PowerMAX</span>
           </Link>
           <div className="hidden md:flex gap-6">
-            <Link href="/rutinas" className="text-black hover:text-gray-600 font-medium">Rutinas</Link>
+            <Link href="/rutines" className="text-black hover:text-gray-600 font-medium">Rutinas</Link>
             <Link href="/store" className="text-black hover:text-gray-600 font-medium">Tienda</Link>
             <Link href="/acerca-de" className="text-black hover:text-gray-600 font-medium">Acerca De PowerMAX</Link>
           </div>

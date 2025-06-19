@@ -26,18 +26,27 @@ type Product = {
 export default function StorePage() {
   const { user } = useAuth();
   const router = useRouter();
-  
+
   const [products, setProducts] = useState<Product[]>([]);
   const [newProduct, setNewProduct] = useState<{ name: string; price: string; image: string }>({
     name: "",
     price: "",
     image: ""
   });
-  
+
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  // Protección de ruta: redirige si no está logeado
   useEffect(() => {
+    if (user === undefined) return; // Espera a que se resuelva el estado de autenticación
+    if (!user) {
+      router.replace("/auth/login");
+    }
+  }, [user, router]);
+
+  useEffect(() => {
+    if (!user) return;
     fetchProducts();
     if (user?.email === "administradores@powermax.com") {
       setIsAdmin(true);
@@ -111,7 +120,7 @@ export default function StorePage() {
     }
   };
 
-  if (loading) {
+  if (user === undefined || loading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-r from-blue-50 to-indigo-50">
         <div className="relative w-16 h-16 border-4 border-blue-200 rounded-full animate-spin border-t-transparent"></div>
@@ -120,11 +129,14 @@ export default function StorePage() {
     );
   }
 
+  // Si no hay usuario, no renderiza nada (ya habrá redirigido)
+  if (!user) return null;
+
   return (
     <div className="min-h-screen">
       <nav className="bg-white py-4 px-6 flex items-center justify-between shadow-md">
         <div className="flex items-center gap-8">
-          <Link href="/" className="flex items-center">
+          <Link href="/dashboard" className="flex items-center">
             <Image
               src="https://res.cloudinary.com/sdhsports/image/upload/v1742563367/powermax_logo_oficial_awxper.png"
               alt="PowerMAX Logo"
@@ -134,6 +146,14 @@ export default function StorePage() {
             />
             <span className="text-xl font-bold hidden sm:block">PowerMAX</span>
           </Link>
+        </div>
+        <div className="flex gap-4">
+          <Button variant="secondary" onClick={handleViewProfile}>
+            Ver Perfil
+          </Button>
+          <Button variant="destructive" onClick={handleLogout}>
+            Cerrar Sesión
+          </Button>
         </div>
       </nav>
 

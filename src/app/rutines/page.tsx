@@ -1,196 +1,166 @@
-"use client";
+"use client"
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { useAuth } from "@/app/contexts/AuthContext";
-import { useIMC } from "@/app/contexts/ImcContext";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { auth } from "@/lib/firebase";
-import { signOut } from "firebase/auth";
-import IMCModal from "@/components/ui/ImcModal";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import Image from "next/image";
 import Link from "next/link";
-import { X } from "lucide-react";
 import Modal from "@/components/ui/Modal";
+import { X } from "lucide-react";
 
-const dashboardBgImages = [
-  "https://res.cloudinary.com/sdhsports/image/upload/v1740148816/Designer_3_i730su.jpg",
-  "https://res.cloudinary.com/sdhsports/image/upload/v1740148142/Designer_1_h64ely.jpg",
-  "https://res.cloudinary.com/sdhsports/image/upload/v1740147631/Designer_oztiom.jpg"
-];
+export default function Component() {
+  const routines = [
+    {
+      title: "Rutina de Fuerza",
+      description: "Construye músculo y aumenta tu fuerza con este programa intensivo.",
+      frequency: "3 días a la semana",
+      duration: "60 minutos",
+      level: "Intermedio",
+    },
+    {
+      title: "Rutina de Cardio",
+      description: "Mejora tu resistencia y quema calorías con este programa cardiovascular.",
+      frequency: "4 días a la semana",
+      duration: "45 minutos",
+      level: "Principiante",
+    },
+    {
+      title: "Rutina de Yoga",
+      description: "Mejora tu flexibilidad y equilibrio con este programa de yoga.",
+      frequency: "3 días a la semana",
+      duration: "60 minutos",
+      level: "Todos los niveles",
+    },
+  ];
 
-export default function DashboardPage() {
-  // 1. TODAS LAS LLAMADAS A HOOKS VAN PRIMERO
-  const { user, loading } = useAuth();
-  const { imcData, loading: imcLoading } = useIMC();
-  const [showModal, setShowModal] = useState(true);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const router = useRouter();
-
-  // Hooks para los modales del footer (MOVIDOS AQUÍ)
+  // --- Lógica para los modales del footer ---
   const [showContactModal, setShowContactModal] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
 
-  // useEffects
-  useEffect(() => {
-    if (!loading && !user) {
-      router.push("/auth/login");
-    }
-  }, [user, loading, router]);
-
-  useEffect(() => {
-    if (!imcLoading) {
-      if (!imcData) {
-        setShowModal(true);
-      } else {
-        setShowModal(false);
-      }
-    }
-  }, [imcData, imcLoading]);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentIndex((prevIndex) => (prevIndex + 1) % dashboardBgImages.length);
-    }, 20000);
-    return () => clearInterval(interval);
-  }, []);
-
-  // 2. DESPUÉS DE LOS HOOKS, VAN LOS RETURNS CONDICIONALES
-  if (loading || imcLoading) {
-    return <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-r from-blue-50 to-indigo-50">
-      <div className="relative">
-        <div className="w-16 h-16 border-4 border-blue-200 rounded-full"></div>
-        <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full absolute top-0 left-0 animate-spin"></div>
-      </div>
-      <p className="mt-4 text-lg font-medium text-gray-700">Cargando tu dashboard...</p>
-      <p className="text-sm text-gray-500 mt-2">Estamos preparando y cargando tus datos</p>
-    </div>
-  }
-  if (!user) return null;
-
-  // 3. FINALMENTE, EL RESTO DE LA LÓGICA Y EL RETURN PRINCIPAL
-  const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      router.push("/");
-    } catch (error) {
-      console.error("Error al cerrar sesión:", error);
-    }
+  const handleOpenContactModal = () => {
+    setShowContactModal(true);
   };
 
-  const handleViewProfile = () => {
-    router.push("/dashboard/profile");
+  const handleCloseContactModal = () => {
+    setShowContactModal(false);
   };
 
-  const getIMCStatus = (bmi: number) => {
-    if (bmi < 18.5) return "Bajo de peso";
-    if (bmi >= 18.5 && bmi < 24.9) return "Peso normal";
-    if (bmi >= 25 && bmi < 29.9) return "Sobrepeso";
-    return "Obesidad";
+  const handleOpenTermsModal = () => {
+    setShowTermsModal(true);
   };
 
-  // Manejadores para los modales del footer
-  const handleOpenContactModal = () => setShowContactModal(true);
-  const handleCloseContactModal = () => setShowContactModal(false);
-  const handleOpenTermsModal = () => setShowTermsModal(true);
-  const handleCloseTermsModal = () => setShowTermsModal(false);
-  const handleOpenPrivacyModal = () => setShowPrivacyModal(true);
-  const handleClosePrivacyModal = () => setShowPrivacyModal(false);
+  const handleCloseTermsModal = () => {
+    setShowTermsModal(false);
+  };
+
+  const handleOpenPrivacyModal = () => {
+    setShowPrivacyModal(true);
+  };
+
+  const handleClosePrivacyModal = () => {
+    setShowPrivacyModal(false);
+  };
+  // --- Fin de la lógica para modales ---
 
   return (
-    <div className="flex flex-col min-h-screen">
-      {/* Navbar */}
-      <nav className="bg-white py-4 px-6 flex items-center justify-between shadow-md">
-        <div className="flex items-center gap-8">
-          <Link href="/" className="flex items-center">
-            <Image
-              src="https://res.cloudinary.com/sdhsports/image/upload/v1742563367/powermax_logo_oficial_awxper.png"
-              alt="PowerMAX Logo"
-              width={80}
-              height={80}
-              className="mr-2 rounded-full"
-            />
-            <span className="text-xl font-bold hidden sm:block">PowerMAX</span>
-          </Link>
-          <div className="hidden md:flex gap-4">
-            <Link href="/rutines" className="hover:text-gray-600">Rutinas</Link>
-            <Link href="/store" className="hover:text-gray-600">Tienda</Link>
-            <Link href="/poseDetection" className="hover:text-gray-600">Detector de Ejercicios</Link>
+    <div className="min-h-screen bg-white">
+      {/* Header */}
+      <nav className="bg-white py-4 px-6 shadow-md">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-8">
+            <Link href="/dashboard" className="flex items-center">
+              <Image
+                src="https://res.cloudinary.com/sdhsports/image/upload/v1742563367/powermax_logo_oficial_awxper.png"
+                alt="PowerMAX Logo"
+                width={80}
+                height={80}
+                className="mr-2 rounded-full"
+              />
+              <span className="text-xl font-bold hidden sm:block">PowerMAX</span>
+            </Link>
+            <nav className="hidden md:flex gap-8">
+              <a href="/store" className="text-black hover:text-gray-700 font-medium">
+                Tienda
+              </a>
+            </nav>
           </div>
-        </div>
-        <div className="flex gap-4">
-          <Button onClick={handleViewProfile}>Ver Perfil</Button>
-          <Button onClick={handleLogout}>Cerrar Sesión</Button>
+          <div className="flex gap-4">
+            <Button variant="secondary">Iniciar Sesion</Button>
+            <Button>Registrarse</Button>
+          </div>
         </div>
       </nav>
 
-      <div className="flex-1">
-        {/* Carrusel con la información del usuario */}
-        <div className="relative w-full mx-auto mt-10">
-          <div className="relative w-full h-96 overflow-hidden rounded-lg shadow-lg">
-            {dashboardBgImages.map((image, index) => (
-              <Image
-                key={index}
-                src={image}
-                alt="Carrusel"
-                layout="fill"
-                objectFit="cover"
-                className={`absolute transition-opacity duration-1000 ${
-                  index === currentIndex ? "opacity-100" : "opacity-0"
-                }`}
-              />
-            ))}
-            <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center text-white p-6">
-              <h1 className="text-3xl font-bold mb-2">Bienvenido, {user.displayName || user.email}</h1>
-              {imcData && (
-                <div className="bg-white bg-opacity-90 p-6 rounded-lg shadow-lg text-center">
-                  <p className="text-lg font-medium text-black">
-                    <strong>Altura:</strong> {imcData.height} m
-                  </p>
-                  <p className="text-lg font-medium text-black">
-                    <strong>Peso:</strong> {imcData.weight} kg
-                  </p>
-                  <p className="text-lg font-medium text-black">
-                    <strong>IMC:</strong> {imcData.bmi}
-                  </p>
-                  <p
-                    className={`text-lg font-semibold ${
-                      getIMCStatus(imcData.bmi) === "Peso normal"
-                        ? "text-green-500"
-                        : getIMCStatus(imcData.bmi) === "Sobrepeso"
-                        ? "text-yellow-500"
-                        : "text-red-500"
-                    }`}
-                  >
-                    <strong>Estado:</strong> {getIMCStatus(imcData.bmi)}
-                  </p>
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-6 py-12">
+        <h1 className="text-3xl font-bold text-black text-center mb-12">Rutinas</h1>
+
+        {/* Routines Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+          {routines.map((routine, index) => (
+            <Card
+              key={index}
+              className="p-4 border rounded-xl shadow-lg bg-white hover:shadow-xl transition-transform transform hover:scale-105"
+            >
+              <CardHeader>
+                <CardTitle className="text-xl font-semibold text-black">{routine.title}</CardTitle>
+                <CardDescription className="text-gray-700">{routine.description}</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="space-y-2 text-sm text-gray-700">
+                  <p>{routine.frequency}</p>
+                  <p>Duración: {routine.duration}</p>
+                  <p>Nivel: {routine.level}</p>
                 </div>
-              )}
-            </div>
+                <Button className="w-full mt-4">Comenzar</Button>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Second Row */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {routines.map((routine, index) => (
+            <Card
+              key={`second-${index}`}
+              className="p-4 border rounded-xl shadow-lg bg-white hover:shadow-xl transition-transform transform hover:scale-105"
+            >
+              <CardHeader>
+                <CardTitle className="text-xl font-semibold text-black">{routine.title}</CardTitle>
+                <CardDescription className="text-gray-700">{routine.description}</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="space-y-2 text-sm text-gray-700">
+                  <p>{routine.frequency}</p>
+                  <p>Duración: {routine.duration}</p>
+                  <p>Nivel: {routine.level}</p>
+                </div>
+                <Button className="w-full mt-4">Comenzar</Button>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </main>
+
+      {/* Footer con modales */}
+      <footer className="bg-gray-50 py-8 mt-16 border-t">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex justify-center gap-8 text-sm text-gray-600">
+            <button onClick={handleOpenContactModal} className="hover:text-black transition-colors">
+              Contacto
+            </button>
+            <button onClick={handleOpenTermsModal} className="hover:text-black transition-colors">
+              Términos y Condiciones
+            </button>
+            <button onClick={handleOpenPrivacyModal} className="hover:text-black transition-colors">
+              Política de Privacidad
+            </button>
           </div>
         </div>
-
-        {/* Modal de IMC (si no hay datos) */}
-        {showModal && <IMCModal onClose={() => setShowModal(false)} />}
-      </div>
-
-      <div className="flex-1">
-        {/* Carrusel con la información de la rutina del dia*/}
-        <div className="relative w-full mx-auto mt-10">
-          Tus rutinas de la Semana
-        </div>
-      </div>
-
-      {/* Footer */}
-      <footer className="bg-gray-100 py-6 px-4 mt-10">
-        <div className="max-w-7xl mx-auto flex justify-end gap-6 text-sm text-gray-600">
-          <button onClick={handleOpenContactModal} className="hover:text-gray-900">Contacto</button>
-          <button onClick={handleOpenTermsModal} className="hover:text-gray-900">Términos y Condiciones</button>
-          <button onClick={handleOpenPrivacyModal} className="hover:text-gray-900">Política de Privacidad</button>
-        </div>
       </footer>
-
+      
+      {/* --- MODALES --- */}
       {/* Modal de Contacto */}
       {showContactModal && (
         <Modal onClose={handleCloseContactModal}>
@@ -203,18 +173,22 @@ export default function DashboardPage() {
             </div>
             <div className="space-y-4 w-full">
               <p className="text-gray-700">Estamos aquí para ayudarte. Contáctanos a través de los siguientes medios:</p>
+              
               <div className="pt-2">
                 <h3 className="font-semibold mb-1">Correo Electrónico</h3>
                 <p className="text-gray-600">soporte@powermax.com</p>
               </div>
+              
               <div className="pt-2">
                 <h3 className="font-semibold mb-1">Teléfono</h3>
                 <p className="text-gray-600">+123 456 789</p>
               </div>
+              
               <div className="pt-2">
                 <h3 className="font-semibold mb-1">Horario de Atención</h3>
                 <p className="text-gray-600">Lunes a Viernes: 9:00 - 18:00<br />Sábados: 10:00 - 14:00</p>
               </div>
+              
               <div className="pt-2">
                 <h3 className="font-semibold mb-1">Dirección</h3>
                 <p className="text-gray-600">Calle Fitness #123<br />Ciudad Deportiva, CP 12345</p>
@@ -237,33 +211,41 @@ export default function DashboardPage() {
                 <X className="h-5 w-5" />
               </button>
             </div>
+            
             <div className="space-y-4 w-full pt-6 mt-2">
               <p className="text-gray-700">Última actualización: 14 de marzo, 2025</p>
+              
               <div className="mt-6">
                 <h3 className="font-semibold text-lg mb-1">1. Aceptación de los Términos</h3>
                 <p className="text-gray-600">Al acceder y utilizar los servicios de PowerMAX, aceptas estar vinculado por estos términos y condiciones. Si no estás de acuerdo con alguna parte de estos términos, no podrás acceder al servicio.</p>
               </div>
+              
               <div>
                 <h3 className="font-semibold text-lg mb-1">2. Uso del Servicio</h3>
                 <p className="text-gray-600">PowerMAX proporciona una plataforma para acceder a rutinas de ejercicio y contenido relacionado con el fitness. Todo el contenido ofrecido en nuestra plataforma es solo para fines informativos y educativos. Siempre debes consultar con un profesional de la salud antes de comenzar cualquier programa de ejercicio.</p>
               </div>
+              
               <div>
                 <h3 className="font-semibold text-lg mb-1">3. Cuentas de Usuario</h3>
                 <p className="text-gray-600">Al crear una cuenta en PowerMAX, eres responsable de mantener la seguridad de tu cuenta y contraseña. La empresa no puede y no será responsable de ninguna pérdida o daño por tu incumplimiento de esta obligación de seguridad.</p>
               </div>
+              
               <div>
                 <h3 className="font-semibold text-lg mb-1">4. Limitación de Responsabilidad</h3>
                 <p className="text-gray-600">En ningún caso PowerMAX, sus directores, empleados o agentes serán responsables de cualquier daño directo, indirecto, incidental, especial o consecuente que resulte del uso o la imposibilidad de usar el servicio.</p>
               </div>
+              
               <div>
                 <h3 className="font-semibold text-lg mb-1">5. Cambios en los Términos</h3>
                 <p className="text-gray-600">Nos reservamos el derecho, a nuestra sola discreción, de modificar o reemplazar estos términos en cualquier momento. Si una revisión es material, intentaremos proporcionar un aviso con al menos 30 días de anticipación.</p>
               </div>
+              
               <div>
                 <h3 className="font-semibold text-lg mb-1">6. Cancelación</h3>
                 <p className="text-gray-600">Puedes cancelar tu cuenta en cualquier momento. Todas las disposiciones de los Términos que por su naturaleza deberían sobrevivir a la terminación sobrevivirán, incluyendo, sin limitación, las disposiciones de propiedad, renuncias de garantía y limitaciones de responsabilidad.</p>
               </div>
             </div>
+            
             <div className="mt-6 w-full">
               <Button variant="secondary" onClick={handleCloseTermsModal} className="w-full">Cerrar</Button>
             </div>
@@ -283,26 +265,32 @@ export default function DashboardPage() {
             </div>
             <div className="space-y-4 w-full">
               <p className="text-gray-700">Última actualización: 14 de marzo, 2025</p>
+              
               <div>
                 <h3 className="font-semibold text-lg mb-1">1. Recopilación de Información</h3>
                 <p className="text-gray-600">Recopilamos varios tipos de información para proporcionar y mejorar nuestro servicio, incluyendo pero no limitado a información personal como nombre, dirección de correo electrónico, edad, altura y peso (para calculadoras de IMC), así como información de uso como su interacción con nuestra plataforma.</p>
               </div>
+              
               <div>
                 <h3 className="font-semibold text-lg mb-1">2. Uso de la Información</h3>
                 <p className="text-gray-600">Utilizamos la información recopilada para proporcionar, mantener y mejorar nuestros servicios, para comunicarnos con usted, y para desarrollar nuevos servicios. Sus datos de salud y fitness solo se utilizan para proporcionar cálculos y recomendaciones personalizadas.</p>
               </div>
+              
               <div>
                 <h3 className="font-semibold text-lg mb-1">3. Compartir de Información</h3>
                 <p className="text-gray-600">No vendemos, intercambiamos ni transferimos su información personal a terceros sin su consentimiento, excepto cuando sea necesario para proporcionar un servicio que haya solicitado.</p>
               </div>
+              
               <div>
                 <h3 className="font-semibold text-lg mb-1">4. Protección de Datos</h3>
                 <p className="text-gray-600">Implementamos una variedad de medidas de seguridad para mantener la seguridad de su información personal. Sus datos personales se almacenan en redes seguras y solo son accesibles por un número limitado de personas.</p>
               </div>
+              
               <div>
                 <h3 className="font-semibold text-lg mb-1">5. Cookies</h3>
                 <p className="text-gray-600">Utilizamos cookies para mejorar su experiencia en nuestro sitio web. Puede elegir que su navegador rechace las cookies, pero esto puede impedir que aproveche algunas funcionalidades de nuestro servicio.</p>
               </div>
+              
               <div>
                 <h3 className="font-semibold text-lg mb-1">6. Sus Derechos</h3>
                 <p className="text-gray-600">Tiene derecho a acceder, corregir o eliminar su información personal. Si desea ejercer alguno de estos derechos, contáctenos a través de la información proporcionada en la sección de contacto.</p>
@@ -314,6 +302,7 @@ export default function DashboardPage() {
           </section>
         </Modal>
       )}
+
     </div>
-  );
+  )
 }
