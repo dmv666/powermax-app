@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { createContext, useContext, useEffect, useState } from "react"
-import { GoogleAuthProvider, signInWithPopup, User } from "firebase/auth"
+import { browserSessionPersistence, GoogleAuthProvider, setPersistence, signInWithPopup, User } from "firebase/auth"
 import { auth } from "@/lib/firebase"
 import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore"
 
@@ -46,14 +46,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    setPersistence(auth, browserSessionPersistence).then(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       console.log("Usuario detectado:", user)
       setUser(user)
       setLoading(false)
     })
 
-    return () => unsubscribe()
-  }, [])
+    return unsubscribe
+  })
+}, [])
 
   return <AuthContext.Provider value={{ user, loading }}>{children}</AuthContext.Provider>
 }

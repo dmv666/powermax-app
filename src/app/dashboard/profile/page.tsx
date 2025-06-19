@@ -5,6 +5,7 @@ import { useAuth } from "@/app/contexts/AuthContext";
 import { useIMC } from "@/app/contexts/ImcContext";
 import { db } from "@/lib/firebase";
 import { doc, updateDoc } from "firebase/firestore";
+import { updateProfile } from "firebase/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
@@ -53,8 +54,11 @@ export default function ProfilePage() {
       // Actualizar nombre en Firestore
       if (user && formData.name) {
         await updateDoc(doc(db, "users", user.uid), {
-          name: formData.name,
+          displayName: formData.name,
         });
+        if (!user.providerData.some((p) => p.providerId === "google.com")) {
+        await updateProfile(user, { displayName: formData.name });
+      }
       }
 
       // Actualizar datos de IMC
@@ -106,7 +110,13 @@ export default function ProfilePage() {
               value={formData.name}
               onChange={handleChange}
               required
+              disabled={user.providerData.some((p) => p.providerId === "google.com")}
             />
+            {user.providerData.some((p) => p.providerId === "google.com") && (
+              <p className="text-xs text-gray-500 mt-1">
+                El nombre se gestiona desde tu cuenta de Google.
+              </p>
+            )}
           </div>
           <div>
             <label className="block font-medium mb-1" htmlFor="height">Altura (m)</label>

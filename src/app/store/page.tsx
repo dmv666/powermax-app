@@ -15,6 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
+import { ShoppingCart, Trash2, PlusCircle, UserCircle } from "lucide-react";
 
 type Product = {
   id: string;
@@ -37,9 +38,8 @@ export default function StorePage() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // Protección de ruta: redirige si no está logeado
   useEffect(() => {
-    if (user === undefined) return; // Espera a que se resuelva el estado de autenticación
+    if (user === undefined) return;
     if (!user) {
       router.replace("/auth/login");
     }
@@ -122,74 +122,123 @@ export default function StorePage() {
 
   if (user === undefined || loading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-r from-blue-50 to-indigo-50">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-r from-blue-100 to-indigo-200">
         <div className="relative w-16 h-16 border-4 border-blue-200 rounded-full animate-spin border-t-transparent"></div>
         <p className="mt-4 text-lg font-medium text-gray-700">Cargando tienda de PowerMAX...</p>
       </div>
     );
   }
 
-  // Si no hay usuario, no renderiza nada (ya habrá redirigido)
   if (!user) return null;
 
   return (
-    <div className="min-h-screen">
-      <nav className="bg-white py-4 px-6 flex items-center justify-between shadow-md">
-        <div className="flex items-center gap-8">
-          <Link href="/dashboard" className="flex items-center">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-pink-50">
+      <nav className="bg-white/80 backdrop-blur py-4 px-6 flex items-center justify-between shadow-lg sticky top-0 z-30">
+        <div className="flex items-center gap-4">
+          <Link href="/dashboard" className="flex items-center group">
             <Image
               src="https://res.cloudinary.com/sdhsports/image/upload/v1742563367/powermax_logo_oficial_awxper.png"
               alt="PowerMAX Logo"
-              width={80}
-              height={80}
-              className="mr-2 rounded-full"
+              width={60}
+              height={60}
+              className="mr-2 rounded-full border-2  group-hover:scale-110 transition-transform"
             />
-            <span className="text-xl font-bold hidden sm:block">PowerMAX</span>
+            <span className="text-2xl font-extrabold tracking-tight hidden sm:block group-hover:text-red-600 transition-colors">PowerMAX</span>
           </Link>
         </div>
-        <div className="flex gap-4">
-          <Button variant="secondary" onClick={handleViewProfile}>
-            Ver Perfil
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={handleViewProfile} className="flex items-center gap-2">
+            <UserCircle className="w-5 h-5" /> Perfil
           </Button>
-          <Button variant="destructive" onClick={handleLogout}>
-            Cerrar Sesión
+          <Button variant="destructive" onClick={handleLogout} className="flex items-center gap-2">
+            <span>Cerrar Sesión</span>
           </Button>
         </div>
       </nav>
 
-      <div className="p-6">
-        <h1 className="text-3xl font-bold">Tienda</h1>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+      <main className="p-6 max-w-7xl mx-auto">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+          <h1 className="text-4xl font-extrabold text-gray-800 flex items-center gap-2">
+            <ShoppingCart className="w-8 h-8 text-pink-500" /> Tienda PowerMAX
+          </h1>
+          {isAdmin && (
+            <div className="flex items-center gap-2 bg-white/80 rounded-xl shadow px-4 py-2">
+              <PlusCircle className="w-5 h-5 text-green-600" />
+              <span className="font-semibold text-green-700">Modo administrador</span>
+            </div>
+          )}
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-8">
           {products.map((product) => (
-            <div key={product.id} className="p-4 border rounded-xl shadow-lg bg-white hover:shadow-xl transition-transform transform hover:scale-105">
-              <Image
-                src={product.image}
-                alt={product.name}
-                width={250}
-                height={180}
-                className="rounded-lg object-cover h-48"
-              />
-              <h2 className="text-xl font-semibold mt-2">{product.name}</h2>
-              <p className="text-lg text-gray-700">${product.price}</p>
-              {isAdmin && (
-                <Button onClick={() => handleDeleteProduct(product.id)} variant="destructive" className="mt-2">
-                  Eliminar
-                </Button>
-              )}
+            <div
+              key={product.id}
+              className="group relative p-0 rounded-3xl shadow-xl bg-white/90 hover:shadow-2xl transition-all duration-300 overflow-hidden border border-blue-100"
+            >
+              <div className="relative w-full h-56 overflow-hidden">
+                <Image
+                  src={product.image}
+                  alt={product.name}
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-300"
+                  style={{ borderTopLeftRadius: "1.5rem", borderTopRightRadius: "1.5rem" }}
+                />
+              </div>
+              <div className="p-5 flex flex-col gap-2">
+                <h2 className="text-xl font-bold text-gray-800">{product.name}</h2>
+                <p className="text-lg text-indigo-600 font-semibold">${product.price}</p>
+                {isAdmin && (
+                  <Button
+                    onClick={() => handleDeleteProduct(product.id)}
+                    variant="ghost"
+                    className="absolute top-3 right-3 bg-white/80 hover:bg-red-100 p-2 rounded-full shadow transition"
+                    title="Eliminar producto"
+                  >
+                    <Trash2 className="w-5 h-5 text-red-500" />
+                  </Button>
+                )}
+              </div>
             </div>
           ))}
         </div>
 
         {isAdmin && (
-          <div className="mt-6 p-4 border rounded-lg max-w-md">
-            <h2 className="text-2xl font-bold mb-4">Agregar Producto</h2>
-            <input type="text" placeholder="Nombre" value={newProduct.name} onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })} className="border p-2 rounded w-full mt-2" />
-            <input type="number" placeholder="Precio" value={newProduct.price} onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })} className="border p-2 rounded w-full mt-2" />
-            <input type="text" placeholder="URL de la imagen" value={newProduct.image} onChange={(e) => setNewProduct({ ...newProduct, image: e.target.value })} className="border p-2 rounded w-full mt-2" />
-            <Button onClick={handleAddProduct} className="mt-4">Agregar</Button>
+          <div className="mt-12 mx-auto max-w-lg bg-white/90 rounded-2xl shadow-2xl p-8">
+            <h2 className="text-2xl font-bold mb-4 text-blue-700 flex items-center gap-2">
+              <PlusCircle className="w-6 h-6 text-green-600" /> Agregar Producto
+            </h2>
+            <div className="flex flex-col gap-3">
+              <input
+                type="text"
+                placeholder="Nombre"
+                value={newProduct.name}
+                onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
+                className="border border-blue-200 p-3 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
+              />
+              <input
+                type="number"
+                placeholder="Precio"
+                value={newProduct.price}
+                onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
+                className="border border-blue-200 p-3 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
+              />
+              <input
+                type="text"
+                placeholder="URL de la imagen"
+                value={newProduct.image}
+                onChange={(e) => setNewProduct({ ...newProduct, image: e.target.value })}
+                className="border border-blue-200 p-3 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
+              />
+              <Button
+                onClick={handleAddProduct}
+                className="mt-2 bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-bold py-2 rounded-lg hover:from-pink-500 hover:to-yellow-500 transition-all"
+              >
+                Agregar producto
+              </Button>
+            </div>
           </div>
         )}
-      </div>
+      </main>
     </div>
   );
 }

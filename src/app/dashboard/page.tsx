@@ -12,11 +12,64 @@ import Image from "next/image";
 import Link from "next/link";
 import { X } from "lucide-react";
 import Modal from "@/components/ui/Modal";
+import { CalendarDays, Dumbbell } from "lucide-react";
 
 const dashboardBgImages = [
   "https://res.cloudinary.com/sdhsports/image/upload/v1740148816/Designer_3_i730su.jpg",
   "https://res.cloudinary.com/sdhsports/image/upload/v1740148142/Designer_1_h64ely.jpg",
   "https://res.cloudinary.com/sdhsports/image/upload/v1740147631/Designer_oztiom.jpg"
+];
+
+const weekRoutines = [
+  {
+    day: "Lunes",
+    title: "Pecho y Tríceps",
+    description: "Press de banca, Fondos, Aperturas, Extensión de tríceps, Flexiones.",
+    icon: <Dumbbell className="w-8 h-8 text-blue-500" />,
+    color: "from-blue-100 to-blue-300"
+  },
+  {
+    day: "Martes",
+    title: "Espalda y Bíceps",
+    description: "Dominadas, Remo, Curl de bíceps, Peso muerto, Pull-over.",
+    icon: <Dumbbell className="w-8 h-8 text-green-500" />,
+    color: "from-green-100 to-green-300"
+  },
+  {
+    day: "Miércoles",
+    title: "Piernas",
+    description: "Sentadillas, Prensa, Zancadas, Elevación de talones, Peso muerto rumano.",
+    icon: <Dumbbell className="w-8 h-8 text-yellow-500" />,
+    color: "from-yellow-100 to-yellow-300"
+  },
+  {
+    day: "Jueves",
+    title: "Hombros y Abdomen",
+    description: "Press militar, Elevaciones laterales, Crunch, Plancha, Elevación de piernas.",
+    icon: <Dumbbell className="w-8 h-8 text-purple-500" />,
+    color: "from-purple-100 to-purple-300"
+  },
+  {
+    day: "Viernes",
+    title: "Full Body",
+    description: "Burpees, Sentadillas, Flexiones, Mountain climbers, Saltos.",
+    icon: <Dumbbell className="w-8 h-8 text-pink-500" />,
+    color: "from-pink-100 to-pink-300"
+  },
+  {
+    day: "Sábado",
+    title: "Cardio y Estiramientos",
+    description: "Correr, Bicicleta, Estiramientos dinámicos y estáticos.",
+    icon: <CalendarDays className="w-8 h-8 text-red-500" />,
+    color: "from-red-100 to-red-300"
+  },
+  {
+    day: "Domingo",
+    title: "Descanso",
+    description: "Recuperación activa, caminata ligera o yoga suave.",
+    icon: <CalendarDays className="w-8 h-8 text-gray-500" />,
+    color: "from-gray-100 to-gray-300"
+  }
 ];
 
 export default function DashboardPage() {
@@ -25,6 +78,7 @@ export default function DashboardPage() {
   const { imcData, loading: imcLoading } = useIMC();
   const [showModal, setShowModal] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [routineIndex, setRoutineIndex] = useState(0);
   const router = useRouter();
 
   // Hooks para los modales del footer (MOVIDOS AQUÍ)
@@ -54,6 +108,13 @@ export default function DashboardPage() {
       setCurrentIndex((prevIndex) => (prevIndex + 1) % dashboardBgImages.length);
     }, 20000);
     return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const routineInterval = setInterval(() => {
+      setRoutineIndex((prev) => (prev + 1) % weekRoutines.length);
+    }, 5000);
+    return () => clearInterval(routineInterval);
   }, []);
 
   // 2. DESPUÉS DE LOS HOOKS, VAN LOS RETURNS CONDICIONALES
@@ -175,12 +236,66 @@ export default function DashboardPage() {
         {showModal && <IMCModal onClose={() => setShowModal(false)} />}
       </div>
 
-      <div className="flex-1">
-        {/* Carrusel con la información de la rutina del dia*/}
-        <div className="relative w-full mx-auto mt-10">
-          Tus rutinas de la Semana
-        </div>
-      </div>
+
+<div className="relative w-full mx-auto mt-10 flex flex-col items-center">
+  <h2 className="text-2xl font-bold mb-6 text-gray-800">Tus rutinas de la semana</h2>
+  <div className="relative h-64 w-full max-w-xs overflow-visible flex items-center justify-center">
+    <div
+      className="flex transition-transform duration-700 ease-in-out"
+      style={{
+        transform: `translateX(-${routineIndex * 100}%)`,
+        width: `${weekRoutines.length * 100}%`,
+      }}
+    >
+      {weekRoutines.map((routine, idx) => {
+        // Calcula la escala y opacidad según la posición relativa
+        let scale = 0.9;
+        let opacity = 0.6;
+        let blur = "blur-[2px]";
+        if (idx === routineIndex) {
+          scale = 1;
+          opacity = 1;
+          blur = "";
+        } else if (
+          idx === (routineIndex + 1) % weekRoutines.length ||
+          idx === (routineIndex - 1 + weekRoutines.length) % weekRoutines.length
+        ) {
+          scale = 0.95;
+          opacity = 0.8;
+          blur = "blur-[1px]";
+        }
+        return (
+          <div
+            key={routine.day}
+            className={`flex-shrink-0 w-full px-2 transition-all duration-700 ${blur}`}
+            style={{
+              transform: `scale(${scale})`,
+              opacity,
+              zIndex: idx === routineIndex ? 20 : 10,
+            }}
+          >
+            <div className={`rounded-2xl shadow-2xl bg-gradient-to-br ${routine.color} p-6 flex flex-col items-center`}>
+              <div className="mb-2">{routine.icon}</div>
+              <h3 className="text-lg font-semibold text-gray-800">{routine.day}</h3>
+              <p className="text-xl font-bold text-gray-900 mb-1">{routine.title}</p>
+              <p className="text-gray-700 text-center">{routine.description}</p>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  </div>
+  <div className="flex gap-2 mt-4">
+    {weekRoutines.map((_, idx) => (
+      <button
+        key={idx}
+        className={`w-3 h-3 rounded-full transition-all duration-300 ${idx === routineIndex ? "bg-blue-600" : "bg-gray-300"}`}
+        onClick={() => setRoutineIndex(idx)}
+        aria-label={`Ver rutina del ${weekRoutines[idx].day}`}
+      />
+    ))}
+  </div>
+</div>
 
       {/* Footer */}
       <footer className="bg-gray-100 py-6 px-4 mt-10">
