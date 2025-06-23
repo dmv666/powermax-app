@@ -4,19 +4,21 @@ import { createContext, useContext, useEffect, useState, ReactNode } from "react
 import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore"
 import { useAuth } from "@/app/contexts/AuthContext"
 
+
 const db = getFirestore()
 
 type IMCData = {
   weight: number
   height: number
   bmi: number
+  routine: string
   state: "underweight" | "normal" | "overweight" | "obesity"
 }
 
 type IMCContextType = {
   imcData: IMCData | null
   loading: boolean
-  saveIMCData: (data: Omit<IMCData, "state">) => Promise<void>
+  saveIMCData: (data: Pick<IMCData, "weight" | "height" | "bmi">) => Promise<void>
 }
 
 const IMCContext = createContext<IMCContextType>({
@@ -32,6 +34,13 @@ function getIMCState(bmi: number): IMCData["state"] {
   return "obesity";
 }
 
+function getRoutineByIMC(bmi: number) {
+  if (bmi < 18.5) return "Ganar peso";
+  if (bmi < 25) return "Mantenimiento";
+  if (bmi < 30) return "Tonificar";
+  return "Bajar de peso";
+}
+
 export const IMCProvider = ({ children }: { children: ReactNode }) => {
   const { user } = useAuth()
   const [imcData, setImcData] = useState<IMCData | null>(null)
@@ -39,8 +48,13 @@ export const IMCProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const fetchIMCData = async () => {
-      if (!user) return
+      if (!user) {
+        setImcData(null) // <-- Limpia el estado cuando no hay usuario
+        setLoading(false)
+        return
+      }
 
+      setLoading(true)
       const userRef = doc(db, "users", user.uid)
       const userSnap = await getDoc(userRef)
 
@@ -48,7 +62,11 @@ export const IMCProvider = ({ children }: { children: ReactNode }) => {
         const userData = userSnap.data()
         if (userData.imcData) {
           setImcData(userData.imcData)
+        } else {
+          setImcData(null)
         }
+      } else {
+        setImcData(null)
       }
       setLoading(false)
     }
@@ -56,22 +74,21 @@ export const IMCProvider = ({ children }: { children: ReactNode }) => {
     fetchIMCData()
   }, [user])
 
-// ...existing code...
-const saveIMCData = async (data: Omit<IMCData, "state">) => {
-  if (!user) return
+  const saveIMCData = async (data: Pick<IMCData, "weight" | "height" | "bmi">) => {
+    if (!user) return
 
-  const state = getIMCState(data.bmi)
-  const dataWithState: IMCData = { ...data, state }
+    const state = getIMCState(data.bmi)
+    const routine = getRoutineByIMC(data.bmi)
+    const dataWithState: IMCData = { ...data, state, routine }
 
-  const userRef = doc(db, "users", user.uid)
-  try {
-    await setDoc(userRef, { imcData: dataWithState }, { merge: true })
-    setImcData(dataWithState)
-  } catch (error) {
-    console.error("Error guardando los datos de IMC:", error)
+    const userRef = doc(db, "users", user.uid)
+    try {
+      await setDoc(userRef, { imcData: dataWithState }, { merge: true })
+      setImcData(dataWithState)
+    } catch (error) {
+      console.error("Error guardando los datos de IMC:", error)
+    }
   }
-}
-// ...existing code...
 
   return (
     <IMCContext.Provider value={{ imcData, loading, saveIMCData }}>

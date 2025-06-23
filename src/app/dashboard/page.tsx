@@ -2,17 +2,15 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/app/contexts/AuthContext";
-import { useIMC } from "@/app/contexts/ImcContext";
+import { UserCircle, X, Dumbbell } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { auth } from "@/lib/firebase";
-import { signOut } from "firebase/auth";
-import IMCModal from "@/components/ui/ImcModal";
 import Image from "next/image";
 import Link from "next/link";
-import { X } from "lucide-react";
+import { useAuth } from "@/app/contexts/AuthContext";
+import { useIMC } from "@/app/contexts/ImcContext";
+import { useRutina } from "@/app/hooks/useRutina"; // Importar el hook
+import IMCModal from "@/components/ui/ImcModal";
 import Modal from "@/components/ui/Modal";
-import { CalendarDays, Dumbbell } from "lucide-react";
 
 const dashboardBgImages = [
   "https://res.cloudinary.com/sdhsports/image/upload/v1740148816/Designer_3_i730su.jpg",
@@ -20,68 +18,43 @@ const dashboardBgImages = [
   "https://res.cloudinary.com/sdhsports/image/upload/v1740147631/Designer_oztiom.jpg"
 ];
 
-const weekRoutines = [
-  {
-    day: "Lunes",
-    title: "Pecho y Tríceps",
-    description: "Press de banca, Fondos, Aperturas, Extensión de tríceps, Flexiones.",
-    icon: <Dumbbell className="w-8 h-8 text-blue-500" />,
-    color: "from-blue-100 to-blue-300"
-  },
-  {
-    day: "Martes",
-    title: "Espalda y Bíceps",
-    description: "Dominadas, Remo, Curl de bíceps, Peso muerto, Pull-over.",
-    icon: <Dumbbell className="w-8 h-8 text-green-500" />,
-    color: "from-green-100 to-green-300"
-  },
-  {
-    day: "Miércoles",
-    title: "Piernas",
-    description: "Sentadillas, Prensa, Zancadas, Elevación de talones, Peso muerto rumano.",
-    icon: <Dumbbell className="w-8 h-8 text-yellow-500" />,
-    color: "from-yellow-100 to-yellow-300"
-  },
-  {
-    day: "Jueves",
-    title: "Hombros y Abdomen",
-    description: "Press militar, Elevaciones laterales, Crunch, Plancha, Elevación de piernas.",
-    icon: <Dumbbell className="w-8 h-8 text-purple-500" />,
-    color: "from-purple-100 to-purple-300"
-  },
-  {
-    day: "Viernes",
-    title: "Full Body",
-    description: "Burpees, Sentadillas, Flexiones, Mountain climbers, Saltos.",
-    icon: <Dumbbell className="w-8 h-8 text-pink-500" />,
-    color: "from-pink-100 to-pink-300"
-  },
-  {
-    day: "Sábado",
-    title: "Cardio y Estiramientos",
-    description: "Correr, Bicicleta, Estiramientos dinámicos y estáticos.",
-    icon: <CalendarDays className="w-8 h-8 text-red-500" />,
-    color: "from-red-100 to-red-300"
-  },
-  {
-    day: "Domingo",
-    title: "Descanso",
-    description: "Recuperación activa, caminata ligera o yoga suave.",
-    icon: <CalendarDays className="w-8 h-8 text-gray-500" />,
-    color: "from-gray-100 to-gray-300"
-  }
-];
+// Definimos un tipo para cada día de la rutina para mejorar la seguridad del tipado
+type RoutineDay = {
+  dia: string;
+  ejercicios: string[];
+};
+
+// Función para obtener colores según el día
+const getColorByDay = (dia: string) => {
+  // CORRECCIÓN: Añadimos una firma de índice para decirle a TypeScript
+  // que este objeto puede ser accedido con cualquier clave de tipo string.
+  const colors: { [key: string]: { icon: string; gradient: string } } = {
+    "Lunes": { icon: "text-blue-500", gradient: "from-blue-100 to-blue-300" },
+    "Martes": { icon: "text-green-500", gradient: "from-green-100 to-green-300" },
+    "Miércoles": { icon: "text-yellow-500", gradient: "from-yellow-100 to-yellow-300" },
+    "Jueves": { icon: "text-purple-500", gradient: "from-purple-100 to-purple-300" },
+    "Viernes": { icon: "text-pink-500", gradient: "from-pink-100 to-pink-300" },
+    "Sábado": { icon: "text-red-500", gradient: "from-red-100 to-red-300" },
+    "Domingo": { icon: "text-gray-500", gradient: "from-gray-100 to-gray-300" }
+  };
+  return colors[dia] || { icon: "text-gray-500", gradient: "from-gray-100 to-gray-300" };
+};
 
 export default function DashboardPage() {
   // 1. TODAS LAS LLAMADAS A HOOKS VAN PRIMERO
   const { user, loading } = useAuth();
   const { imcData, loading: imcLoading } = useIMC();
+
+  // Hook para obtener la rutina basada en la recomendación del IMC
+  // MEJORA: Asignamos el tipo `RoutineDay[]` a la rutina
+  const { rutina, loading: rutinaLoading } = useRutina(imcData?.routine?.toLowerCase() || "") as { rutina: RoutineDay[], loading: boolean };
+  
   const [showModal, setShowModal] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [routineIndex, setRoutineIndex] = useState(0);
   const router = useRouter();
 
-  // Hooks para los modales del footer (MOVIDOS AQUÍ)
+  // Hooks para los modales del footer
   const [showContactModal, setShowContactModal] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
@@ -106,16 +79,23 @@ export default function DashboardPage() {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentIndex((prevIndex) => (prevIndex + 1) % dashboardBgImages.length);
-    }, 20000);
+    }, 6000);
     return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
-    const routineInterval = setInterval(() => {
-      setRoutineIndex((prev) => (prev + 1) % weekRoutines.length);
-    }, 5000);
-    return () => clearInterval(routineInterval);
-  }, []);
+    if (rutina.length > 0) {
+      const routineInterval = setInterval(() => {
+        setRoutineIndex((prev) => (prev + 1) % rutina.length);
+      }, 6000);
+      return () => clearInterval(routineInterval);
+    }
+  }, [rutina]);
+
+  // Reset routine index when rutina changes
+  useEffect(() => {
+    setRoutineIndex(0);
+  }, [rutina]);
 
   // 2. DESPUÉS DE LOS HOOKS, VAN LOS RETURNS CONDICIONALES
   if (loading || imcLoading) {
@@ -132,12 +112,14 @@ export default function DashboardPage() {
 
   // 3. FINALMENTE, EL RESTO DE LA LÓGICA Y EL RETURN PRINCIPAL
   const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      router.push("/");
-    } catch (error) {
-      console.error("Error al cerrar sesión:", error);
-    }
+    const { signOut } = await import("firebase/auth");
+    const { auth } = await import("@/lib/firebase");
+    await signOut(auth);
+
+    localStorage.clear();
+    sessionStorage.clear();
+
+    router.push("/");
   };
 
   const handleViewProfile = () => {
@@ -162,17 +144,19 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Navbar */}
-      <nav className="bg-white py-4 px-6 flex items-center justify-between shadow-md">
-        <div className="flex items-center gap-8">
-          <Link href="/" className="flex items-center">
+      <nav className="bg-white/80 backdrop-blur py-4 px-6 flex items-center justify-between shadow-lg sticky top-0 z-30">
+        <div className="flex items-center gap-4">
+          <Link href="/" className="flex items-center group">
             <Image
               src="https://res.cloudinary.com/sdhsports/image/upload/v1742563367/powermax_logo_oficial_awxper.png"
               alt="PowerMAX Logo"
-              width={80}
-              height={80}
-              className="mr-2 rounded-full"
+              width={60}
+              height={60}
+              className="mr-2 rounded-full border-2 group-hover:scale-110 transition-transform"
             />
-            <span className="text-xl font-bold hidden sm:block">PowerMAX</span>
+            <span className="text-2xl font-extrabold tracking-tight hidden sm:block group-hover:text-red-600 transition-colors">
+              PowerMAX
+            </span>
           </Link>
           <div className="hidden md:flex gap-4">
             <Link href="/rutines" className="hover:text-gray-600">Rutinas</Link>
@@ -180,9 +164,34 @@ export default function DashboardPage() {
             <Link href="/poseDetection" className="hover:text-gray-600">Detector de Ejercicios</Link>
           </div>
         </div>
-        <div className="flex gap-4">
-          <Button onClick={handleViewProfile}>Ver Perfil</Button>
-          <Button onClick={handleLogout}>Cerrar Sesión</Button>
+        <div className="flex gap-2">
+          {user ? (
+            <>
+              <Button
+                variant="outline"
+                onClick={handleViewProfile}
+                className="flex items-center gap-2"
+              >
+                <UserCircle className="w-5 h-5" /> Perfil
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={handleLogout}
+                className="flex items-center gap-2"
+              >
+                <span>Cerrar Sesión</span>
+              </Button>
+            </>
+          ) : (
+            <>
+              <Link href="/auth/login">
+                <Button variant="default">Iniciar Sesión</Button>
+              </Link>
+              <Link href="/auth/register">
+                <Button variant="default">Registrarse</Button>
+              </Link>
+            </>
+          )}
         </div>
       </nav>
 
@@ -203,7 +212,8 @@ export default function DashboardPage() {
               />
             ))}
             <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center text-white p-6">
-              <h1 className="text-3xl font-bold mb-2">Bienvenido, {user.displayName || user.email}</h1>
+              {/* CORRECCIÓN: Usamos optional chaining por si el usuario no tiene displayName o email */}
+              <h1 className="text-3xl font-bold mb-2">Bienvenido, {user?.displayName || user?.email}</h1>
               {imcData && (
                 <div className="bg-white bg-opacity-90 p-6 rounded-lg shadow-lg text-center">
                   <p className="text-lg font-medium text-black">
@@ -214,6 +224,9 @@ export default function DashboardPage() {
                   </p>
                   <p className="text-lg font-medium text-black">
                     <strong>IMC:</strong> {imcData.bmi}
+                  </p>
+                  <p className="text-lg font-medium text-black">
+                    <strong>Rutina recomendada:</strong> {imcData.routine}
                   </p>
                   <p
                     className={`text-lg font-semibold ${
@@ -236,66 +249,106 @@ export default function DashboardPage() {
         {showModal && <IMCModal onClose={() => setShowModal(false)} />}
       </div>
 
-
-<div className="relative w-full mx-auto mt-10 flex flex-col items-center">
-  <h2 className="text-2xl font-bold mb-6 text-gray-800">Tus rutinas de la semana</h2>
-  <div className="relative h-64 w-full max-w-xs overflow-visible flex items-center justify-center">
-    <div
-      className="flex transition-transform duration-700 ease-in-out"
-      style={{
-        transform: `translateX(-${routineIndex * 100}%)`,
-        width: `${weekRoutines.length * 100}%`,
-      }}
-    >
-      {weekRoutines.map((routine, idx) => {
-        // Calcula la escala y opacidad según la posición relativa
-        let scale = 0.9;
-        let opacity = 0.6;
-        let blur = "blur-[2px]";
-        if (idx === routineIndex) {
-          scale = 1;
-          opacity = 1;
-          blur = "";
-        } else if (
-          idx === (routineIndex + 1) % weekRoutines.length ||
-          idx === (routineIndex - 1 + weekRoutines.length) % weekRoutines.length
-        ) {
-          scale = 0.95;
-          opacity = 0.8;
-          blur = "blur-[1px]";
-        }
-        return (
-          <div
-            key={routine.day}
-            className={`flex-shrink-0 w-full px-2 transition-all duration-700 ${blur}`}
-            style={{
-              transform: `scale(${scale})`,
-              opacity,
-              zIndex: idx === routineIndex ? 20 : 10,
-            }}
-          >
-            <div className={`rounded-2xl shadow-2xl bg-gradient-to-br ${routine.color} p-6 flex flex-col items-center`}>
-              <div className="mb-2">{routine.icon}</div>
-              <h3 className="text-lg font-semibold text-gray-800">{routine.day}</h3>
-              <p className="text-xl font-bold text-gray-900 mb-1">{routine.title}</p>
-              <p className="text-gray-700 text-center">{routine.description}</p>
+      {/* Carrusel de rutinas dinámico */}
+      {imcData && !rutinaLoading && rutina.length > 0 && (
+        <div className="relative w-full mx-auto mt-10 flex flex-col items-center">
+          <h2 className="text-2xl font-bold mb-2 text-gray-800">Tu rutina personalizada</h2>
+          <p className="text-gray-600 mb-6">Basada en tu objetivo: <span className="font-semibold">{imcData.routine}</span></p>
+          
+          <div className="relative h-64 w-full max-w-xs overflow-visible flex items-center justify-center">
+            <div
+              className="flex transition-transform duration-700 ease-in-out"
+              style={{
+                transform: `translateX(-${routineIndex * 100}%)`,
+                width: `${rutina.length * 100}%`,
+              }}
+            >
+              {rutina.map((routine, idx) => {
+                const colors = getColorByDay(routine.dia);
+                // Calcula la escala y opacidad según la posición relativa
+                let scale = 0.9;
+                let opacity = 0.6;
+                let blur = "blur-[2px]";
+                if (idx === routineIndex) {
+                  scale = 1;
+                  opacity = 1;
+                  blur = "";
+                } else if (
+                  idx === (routineIndex + 1) % rutina.length ||
+                  idx === (routineIndex - 1 + rutina.length) % rutina.length
+                ) {
+                  scale = 0.95;
+                  opacity = 0.8;
+                  blur = "blur-[1px]";
+                }
+                return (
+                  <div
+                    key={routine.dia}
+                    className={`flex-shrink-0 w-full px-2 transition-all duration-700 ${blur}`}
+                    style={{
+                      transform: `scale(${scale})`,
+                      opacity,
+                      zIndex: idx === routineIndex ? 20 : 10,
+                    }}
+                  >
+                    <div className={`rounded-2xl shadow-2xl bg-gradient-to-br ${colors.gradient} p-6 flex flex-col items-center min-h-[200px]`}>
+                      <div className="mb-2">
+                        <Dumbbell className={`w-8 h-8 ${colors.icon}`} />
+                      </div>
+                      <h3 className="text-lg font-semibold text-gray-800 mb-1">{routine.dia}</h3>
+                      <div className="flex-1 flex flex-col justify-center">
+                        <div className="space-y-1">
+                          {routine.ejercicios.map((ejercicio, ejIdx) => (
+                            <p key={ejIdx} className="text-sm text-gray-700 text-center leading-tight">
+                              • {ejercicio}
+                            </p>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
-        );
-      })}
-    </div>
-  </div>
-  <div className="flex gap-2 mt-4">
-    {weekRoutines.map((_, idx) => (
-      <button
-        key={idx}
-        className={`w-3 h-3 rounded-full transition-all duration-300 ${idx === routineIndex ? "bg-blue-600" : "bg-gray-300"}`}
-        onClick={() => setRoutineIndex(idx)}
-        aria-label={`Ver rutina del ${weekRoutines[idx].day}`}
-      />
-    ))}
-  </div>
-</div>
+          
+          {rutina.length > 1 && (
+            <div className="flex gap-2 mt-4">
+              {rutina.map((_, idx) => (
+                <button
+                  key={idx}
+                  className={`w-3 h-3 rounded-full transition-all duration-300 ${idx === routineIndex ? "bg-blue-600" : "bg-gray-300"}`}
+                  onClick={() => setRoutineIndex(idx)}
+                  aria-label={`Ver rutina del ${rutina[idx].dia}`}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Mensaje cuando no hay rutina disponible */}
+      {imcData && !rutinaLoading && rutina.length === 0 && (
+        <div className="relative w-full mx-auto mt-10 flex flex-col items-center">
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 max-w-md">
+            <h3 className="text-lg font-semibold text-yellow-800 mb-2">Rutina no disponible</h3>
+            <p className="text-yellow-700">
+              No encontramos una rutina específica para &quot;{imcData.routine}&quot;. 
+              Por favor, contacta con nuestro equipo para obtener una rutina personalizada.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Loading state para rutinas */}
+      {imcData && rutinaLoading && (
+        <div className="relative w-full mx-auto mt-10 flex flex-col items-center">
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+            <p className="text-gray-600">Cargando tu rutina personalizada...</p>
+          </div>
+        </div>
+      )}
 
       {/* Footer */}
       <footer className="bg-gray-100 py-6 px-4 mt-10">

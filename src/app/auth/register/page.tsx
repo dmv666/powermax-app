@@ -66,24 +66,25 @@ export default function RegisterPage() {
       </div>
 
       {/* Navbar fijo en la parte superior */}
-      <nav className="w-full bg-white py-4 px-6 flex items-center justify-between shadow-md z-20 relative">
-        <div className="flex items-center gap-8">
-          <Link href="/" className="flex items-center">
-            <Image
-              src="https://res.cloudinary.com/sdhsports/image/upload/v1742563367/powermax_logo_oficial_awxper.png"
-              alt="PowerMAX Logo"
-              width={80}
-              height={80}
-              className="mr-2 rounded-full"
-            />
-            <span className="text-xl font-bold text-black">PowerMAX</span>
-          </Link>
-          <div className="hidden md:flex gap-6">
-            <Link href="/rutines" className="text-black hover:text-gray-600 font-medium">Rutinas</Link>
-            <Link href="/store" className="text-black hover:text-gray-600 font-medium">Tienda</Link>
-            <Link href="/acerca-de" className="text-black hover:text-gray-600 font-medium">Acerca De PowerMAX</Link>
-          </div>
-        </div>
+      <nav className="bg-white/80 backdrop-blur py-4 px-6 flex items-center justify-between shadow-lg sticky top-0 z-30">
+  <div className="flex items-center gap-4">
+    <Link href="/" className="flex items-center group">
+      <Image
+        src="https://res.cloudinary.com/sdhsports/image/upload/v1742563367/powermax_logo_oficial_awxper.png"
+        alt="PowerMAX Logo"
+        width={60}
+        height={60}
+        className="mr-2 rounded-full border-2 group-hover:scale-110 transition-transform"
+      />
+      <span className="text-2xl font-extrabold tracking-tight hidden sm:block group-hover:text-red-600 transition-colors">
+        PowerMAX
+      </span>
+    </Link>
+    <div className="hidden md:flex gap-4">
+      <Link href="/rutines" className="hover:text-gray-600">Rutinas</Link>
+      <Link href="/store" className="hover:text-gray-600">Tienda</Link>
+    </div>
+  </div>
         <div className="flex gap-4">
           <Link href="/auth/login">
             <Button variant="default">Iniciar Sesión</Button>

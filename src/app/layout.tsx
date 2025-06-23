@@ -1,6 +1,7 @@
 import type React from "react"
 import { AuthProvider } from "@/app/contexts/AuthContext"
-import { IMCProvider } from "@/app/contexts//ImcContext"
+import { IMCProvider } from "@/app/contexts/ImcContext"
+import { CartProvider } from "@/app/contexts/CartContext"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./styles/globals.css"
@@ -23,9 +24,13 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body className={inter.className}>
-        <AuthProvider>
-          <IMCProvider>{children}</IMCProvider>
-        </AuthProvider>
+        <CartProvider>
+          <AuthProvider>
+            <IMCProvider>
+              {children}
+            </IMCProvider>
+          </AuthProvider>
+        </CartProvider>
       </body>
     </html>
   )

@@ -10,29 +10,38 @@ import {
   getDocs,
   addDoc,
   deleteDoc,
-  doc
+  doc,
 } from "firebase/firestore";
+
+// NUEVO: Importaciones para el carrito y los nuevos componentes
+import { useCart, Product } from "@/app/contexts/CartContext";
+import ProductCard from "@/components/ui/ProductCard";
+import CartSidebar from "@/components/ui/CartSidebar";
+import { Badge } from "@/components/ui/badge";
+
+// Componentes de UI y Iconos
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
-import { ShoppingCart, Trash2, PlusCircle, UserCircle } from "lucide-react";
-
-type Product = {
-  id: string;
-  name: string;
-  price: number;
-  image: string;
-};
+import { ShoppingCart, PlusCircle, UserCircle } from "lucide-react";
 
 export default function StorePage() {
   const { user } = useAuth();
   const router = useRouter();
 
+  // NUEVO: Hooks y estado para el carrito
+  const { getItemCount } = useCart();
+  const [isCartOpen, setIsCartOpen] = useState(false);
+
+  // CAMBIO: El tipo `Product` ahora se importa de CartContext
   const [products, setProducts] = useState<Product[]>([]);
-  const [newProduct, setNewProduct] = useState<{ name: string; price: string; image: string }>({
+  
+  // CAMBIO: `newProduct` ahora incluye el campo `description`
+  const [newProduct, setNewProduct] = useState<{ name: string; price: string; image: string; description: string }>({
     name: "",
     price: "",
-    image: ""
+    image: "",
+    description: "",
   });
 
   const [isAdmin, setIsAdmin] = useState(false);
@@ -64,6 +73,8 @@ export default function StorePage() {
           name: data.name,
           price: data.price,
           image: data.image,
+          // CAMBIO: Se incluye la descripción con un valor por defecto si no existe
+          description: data.description || "Sin descripción disponible.",
         };
       });
       setProducts(productList);
@@ -75,7 +86,9 @@ export default function StorePage() {
   };
 
   const handleAddProduct = async () => {
-    if (!newProduct.name || !newProduct.price || !newProduct.image) return;
+    // CAMBIO: Se valida también la descripción
+    if (!newProduct.name || !newProduct.price || !newProduct.image || !newProduct.description) return;
+    
     const priceNumber = parseFloat(newProduct.price);
     if (isNaN(priceNumber)) {
       alert("Por favor, ingresa un número válido en el precio.");
@@ -87,8 +100,11 @@ export default function StorePage() {
         name: newProduct.name,
         price: priceNumber,
         image: newProduct.image,
+        // CAMBIO: Se añade la descripción a la base de datos
+        description: newProduct.description,
       });
-      setNewProduct({ name: "", price: "", image: "" });
+      // CAMBIO: Se resetea el estado del formulario completo
+      setNewProduct({ name: "", price: "", image: "", description: "" });
       fetchProducts();
     } catch (error) {
       console.error("Error adding product:", error);
@@ -141,12 +157,26 @@ export default function StorePage() {
               alt="PowerMAX Logo"
               width={60}
               height={60}
-              className="mr-2 rounded-full border-2  group-hover:scale-110 transition-transform"
+              className="mr-2 rounded-full border-2 group-hover:scale-110 transition-transform"
             />
             <span className="text-2xl font-extrabold tracking-tight hidden sm:block group-hover:text-red-600 transition-colors">PowerMAX</span>
           </Link>
+          <div className="hidden md:flex gap-4">
+            <Link href="/rutines" className="hover:text-gray-600">Rutinas</Link>
+            <Link href="/dashboard" className="hover:text-gray-600">Dashboard</Link>
+            <Link href="/poseDetection" className="hover:text-gray-600">Detector de Ejercicios</Link>
+          </div>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-center">
+            {/* NUEVO: Botón para abrir el carrito con contador */}
+            <Button variant="outline" onClick={() => setIsCartOpen(true)} className="relative">
+                <ShoppingCart className="w-5 h-5" />
+                {getItemCount() > 0 && (
+                    <Badge variant="destructive" className="absolute -top-2 -right-2 px-1.5 py-0 text-xs rounded-full">
+                        {getItemCount()}
+                    </Badge>
+                )}
+            </Button>
           <Button variant="outline" onClick={handleViewProfile} className="flex items-center gap-2">
             <UserCircle className="w-5 h-5" /> Perfil
           </Button>
@@ -169,36 +199,15 @@ export default function StorePage() {
           )}
         </div>
 
+        {/* CAMBIO: Se usa el nuevo componente ProductCard para renderizar los productos */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-8">
           {products.map((product) => (
-            <div
+            <ProductCard
               key={product.id}
-              className="group relative p-0 rounded-3xl shadow-xl bg-white/90 hover:shadow-2xl transition-all duration-300 overflow-hidden border border-blue-100"
-            >
-              <div className="relative w-full h-56 overflow-hidden">
-                <Image
-                  src={product.image}
-                  alt={product.name}
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-300"
-                  style={{ borderTopLeftRadius: "1.5rem", borderTopRightRadius: "1.5rem" }}
-                />
-              </div>
-              <div className="p-5 flex flex-col gap-2">
-                <h2 className="text-xl font-bold text-gray-800">{product.name}</h2>
-                <p className="text-lg text-indigo-600 font-semibold">${product.price}</p>
-                {isAdmin && (
-                  <Button
-                    onClick={() => handleDeleteProduct(product.id)}
-                    variant="ghost"
-                    className="absolute top-3 right-3 bg-white/80 hover:bg-red-100 p-2 rounded-full shadow transition"
-                    title="Eliminar producto"
-                  >
-                    <Trash2 className="w-5 h-5 text-red-500" />
-                  </Button>
-                )}
-              </div>
-            </div>
+              product={product}
+              isAdmin={isAdmin}
+              onDelete={handleDeleteProduct}
+            />
           ))}
         </div>
 
@@ -229,6 +238,13 @@ export default function StorePage() {
                 onChange={(e) => setNewProduct({ ...newProduct, image: e.target.value })}
                 className="border border-blue-200 p-3 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
               />
+              {/* NUEVO: Campo de texto para la descripción */}
+              <textarea
+                placeholder="Descripción del producto"
+                value={newProduct.description}
+                onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
+                className="border border-blue-200 p-3 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none h-24"
+              />
               <Button
                 onClick={handleAddProduct}
                 className="mt-2 bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-bold py-2 rounded-lg hover:from-pink-500 hover:to-yellow-500 transition-all"
@@ -239,6 +255,9 @@ export default function StorePage() {
           </div>
         )}
       </main>
+
+      {/* NUEVO: Componente del Carrito que se muestra u oculta */}
+      <CartSidebar isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
     </div>
   );
 }

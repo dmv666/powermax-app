@@ -1,12 +1,15 @@
 "use client"
 
 import { useState } from "react";
+import { UserCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import Image from "next/image";
 import Link from "next/link";
 import Modal from "@/components/ui/Modal";
 import { X } from "lucide-react";
+import { useAuth } from "@/app/contexts/AuthContext";
+import { useRouter } from "next/navigation";
 
 export default function Component() {
   const routines = [
@@ -63,32 +66,71 @@ export default function Component() {
   };
   // --- Fin de la lógica para modales ---
 
+  const { user } = useAuth();
+  const router = useRouter();
+
+  const handleViewProfile = () => {
+    router.push("/dashboard/profile");
+  };
+
+  const handleLogout = async () => {
+    const { signOut } = await import("firebase/auth");
+    const { auth } = await import("@/lib/firebase");
+    await signOut(auth);
+    router.push("/");
+  };
+
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
-      <nav className="bg-white py-4 px-6 shadow-md">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-8">
-            <Link href="/dashboard" className="flex items-center">
-              <Image
-                src="https://res.cloudinary.com/sdhsports/image/upload/v1742563367/powermax_logo_oficial_awxper.png"
-                alt="PowerMAX Logo"
-                width={80}
-                height={80}
-                className="mr-2 rounded-full"
-              />
-              <span className="text-xl font-bold hidden sm:block">PowerMAX</span>
-            </Link>
-            <nav className="hidden md:flex gap-8">
-              <a href="/store" className="text-black hover:text-gray-700 font-medium">
-                Tienda
-              </a>
-            </nav>
+      <nav className="bg-white/80 backdrop-blur py-4 px-6 flex items-center justify-between shadow-lg sticky top-0 z-30">
+        <div className="flex items-center gap-4">
+          <Link href="/" className="flex items-center group">
+            <Image
+              src="https://res.cloudinary.com/sdhsports/image/upload/v1742563367/powermax_logo_oficial_awxper.png"
+              alt="PowerMAX Logo"
+              width={60}
+              height={60}
+              className="mr-2 rounded-full border-2 group-hover:scale-110 transition-transform"
+            />
+            <span className="text-2xl font-extrabold tracking-tight hidden sm:block group-hover:text-red-600 transition-colors">
+              PowerMAX
+            </span>
+          </Link>
+          <div className="hidden md:flex gap-4">
+            <Link href="/store" className="hover:text-gray-600">Tienda</Link>
+            <Link href="/dashboard" className="hover:text-gray-600">Dashboard</Link>
+            <Link href="/poseDetection" className="hover:text-gray-600">Detector de Ejercicios</Link>
           </div>
-          <div className="flex gap-4">
-            <Button variant="secondary">Iniciar Sesion</Button>
-            <Button>Registrarse</Button>
-          </div>
+        </div>
+        <div className="flex gap-2">
+          {user ? (
+            <>
+              <Button
+                variant="outline"
+                onClick={handleViewProfile}
+                className="flex items-center gap-2"
+              >
+                <UserCircle className="w-5 h-5" /> Perfil
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={handleLogout}
+                className="flex items-center gap-2"
+              >
+                <span>Cerrar Sesión</span>
+              </Button>
+            </>
+          ) : (
+            <>
+              <Link href="/auth/login">
+                <Button variant="default">Iniciar Sesión</Button>
+              </Link>
+              <Link href="/auth/register">
+                <Button variant="default">Registrarse</Button>
+              </Link>
+            </>
+          )}
         </div>
       </nav>
 

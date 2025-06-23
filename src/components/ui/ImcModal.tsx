@@ -17,10 +17,10 @@ type IMCModalProps = {
     })
   
     useEffect(() => {
-      if (!imcData) {
-        onClose() // Cierra el modal si ya hay datos de IMC
+      if (imcData) {
+        onClose(); // Cierra el modal solo si ya hay datos de IMC
       }
-    }, [imcData, onClose])
+    }, [imcData, onClose]);
   
     const handleSubmit = async (e: FormEvent) => {
       e.preventDefault()
@@ -78,4 +78,3 @@ type IMCModalProps = {
       </div>
     )
   }
-  
