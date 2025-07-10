@@ -20,12 +20,158 @@ import { smoothLandmarks } from "./smoothing-utils"
 // Mapeo de ejercicios a videos de referencia
 // NOTA: Reemplazar las URLs con los videos reales
 const exerciseVideos: Record<string, string> = {
-  // Ejercicios complejos que mostrarán video de referencia
-  squat: "https://ejemplo.com/video-squat.mp4", // REEMPLAZAR ESTA URL
-  deadlift: "https://ejemplo.com/video-deadlift.mp4", // REEMPLAZAR ESTA URL
-  shoulderPress: "https://ejemplo.com/video-shoulderpress.mp4", // REEMPLAZAR ESTA URL
-  benchPress: "https://ejemplo.com/video-benchpress.mp4", // REEMPLAZAR ESTA URL
-  latPulldown: "https://ejemplo.com/video-latpulldown.mp4", // REEMPLAZAR ESTA URL
+  squat: "https://ejemplo.com/video-squat.mp4",           // Sentadilla libre (Squat)
+  deadlift: "https://ejemplo.com/video-deadlift.mp4",     // Peso muerto convencional (Deadlift)
+  lunges: "https://ejemplo.com/video-lunges.mp4",         // Zancadas (Lunges)
+  calfRaises: "https://ejemplo.com/video-calfraises.mp4",  // Elevación de talones (Calf raises)
+  benchPress: "https://ejemplo.com/video-benchpress.mp4",  // Press de banca (Bench press)
+  dips: "https://ejemplo.com/video-dips.mp4",              // Fondos en paralelas (Dips)
+  latPulldown: "https://ejemplo.com/video-latpulldown.mp4",// Jalón al pecho (Lat Pulldown)
+  pullUps: "https://ejemplo.com/video-pullups.mp4",        // Dominadas (Pull-ups)
+  shoulderPress: "https://ejemplo.com/video-shoulderpress.mp4", // Press militar (Shoulder Press)
+  barbellRow: "https://ejemplo.com/video-barbellrow.mp4",  // Remo con barra (Barbell Row)
+  bicepsCurl: "https://ejemplo.com/video-bicepscurl.mp4",  // Curl de bíceps (Biceps Curl)
+}
+
+// Componente de feedback corregido y completo
+const ExerciseFeedback: React.FC<{
+  exercise: (typeof exercises)[0] | null
+  angles: { [key: string]: number }
+  angleStates: { [key: string]: AngleState }
+  gripCorrect: boolean
+  handFeedback: string
+  progress: number
+  isCorrect: boolean
+  repetitionCount: number
+  exerciseTimer: number
+}> = ({
+  exercise,
+  angles,
+  angleStates,
+  gripCorrect,
+  handFeedback,
+  progress,
+  isCorrect,
+  repetitionCount,
+  exerciseTimer,
+}) => {
+  if (!exercise) return null
+
+  // Calcular porcentaje de corrección general
+  const totalJoints = exercise.joints.length
+  const correctJoints = Object.entries(angleStates).filter(([joint, state]) => state === AngleState.GOOD).length
+  const correctPercentage = totalJoints > 0 ? Math.round((correctJoints / totalJoints) * 100) : 0
+
+  // Determinar mensaje general
+  let overallMessage = ""
+  if (correctPercentage >= 90) {
+    overallMessage = "¡Excelente forma! Mantén la posición."
+  } else if (correctPercentage >= 70) {
+    overallMessage = "Buena forma. Pequeños ajustes necesarios."
+  } else if (correctPercentage >= 50) {
+    overallMessage = "Forma aceptable. Presta atención a las articulaciones marcadas."
+  } else {
+    overallMessage = "Necesitas mejorar tu forma. Revisa las instrucciones."
+  }
+
+  // Generar consejos específicos
+  const specificTips = Object.entries(angleStates)
+    .filter(([joint, state]) => state !== AngleState.GOOD && state !== AngleState.DEAD_ZONE)
+    .map(([joint, state]) => {
+      const angle = angles[joint]
+      const jointName = translateJointName(joint)
+      const range = exercise.angleRanges[joint]
+
+      if (state === AngleState.WARNING) {
+        return `${jointName}: Casi correcto (${angle?.toFixed(1)}°). Ajusta ligeramente.`
+      } else if (state === AngleState.DANGER) {
+        if (angle < range.min) {
+          return `${jointName}: Demasiado flexionado (${angle?.toFixed(1)}°). Extiende más.`
+        } else {
+          return `${jointName}: Demasiado extendido (${angle?.toFixed(1)}°). Flexiona más.`
+        }
+      }
+      return ""
+    })
+    .filter((tip) => tip !== "")
+
+  return (
+    <div className="bg-white p-4 rounded-lg shadow-md w-full max-w-md">
+      <h3 className="text-xl font-bold mb-2">{exercise.name}</h3>
+
+      {/* Barra de progreso */}
+      <div className="mb-4">
+        <div className="flex items-center justify-between mb-1">
+          <span>Precisión de forma:</span>
+          <span className="font-bold">{Math.round(progress)}%</span>
+        </div>
+        <div className="w-full bg-gray-200 rounded-full h-2.5">
+          <div
+            className={`h-2.5 rounded-full ${
+              progress >= 80 ? "bg-green-600" : progress >= 50 ? "bg-yellow-500" : "bg-red-600"
+            }`}
+            style={{ width: `${progress}%` }}
+          ></div>
+        </div>
+      </div>
+
+      {/* Contador de repeticiones */}
+      {(exercise.id === "squat" ||
+        exercise.id === "benchPress" ||
+        exercise.id === "shoulderPress" ||
+        exercise.id === "deadlift") && (
+        <div className="mb-4 text-center">
+          <span className="text-3xl font-bold">{repetitionCount}</span>
+          <span className="text-lg ml-2">repeticiones</span>
+        </div>
+      )}
+
+      {/* Timer para ejercicios estáticos */}
+      {(exercise.id === "plank" || exercise.id === "sidePlank") && (
+        <div className="mb-4 text-center">
+          <span className="text-3xl font-bold">{Math.floor(exerciseTimer)}</span>
+          <span className="text-lg ml-2">segundos</span>
+        </div>
+      )}
+
+      {/* Estado general */}
+      <div
+        className={`p-3 rounded-lg mb-4 text-center ${
+          isCorrect ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"
+        }`}
+      >
+        <p className="font-bold">{isCorrect ? "¡Forma correcta!" : "Ajusta tu postura"}</p>
+      </div>
+
+      <p className="font-medium mb-3">{overallMessage}</p>
+
+      {specificTips.length > 0 && (
+        <div className="mb-3">
+          <h4 className="font-semibold mb-1">Ajustes necesarios:</h4>
+          <ul className="list-disc pl-5 space-y-1">
+            {specificTips.map((tip, index) => (
+              <li key={index} className="text-sm">
+                {tip}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {(exercise.id === "latPulldown" || exercise.id === "pullUps") && (
+        <div className={`p-2 rounded ${gripCorrect ? "bg-green-100" : "bg-yellow-100"} mt-2`}>
+          <p className="text-sm font-medium">
+            <span className="font-bold">Agarre: </span>
+            {handFeedback}
+          </p>
+        </div>
+      )}
+
+      <div className="mt-4 text-sm text-gray-600">
+        <p>{exercise.description}</p>
+      </div>
+    </div>
+  )
 }
 
 const PoseDetection: React.FC = () => {
@@ -477,6 +623,16 @@ const PoseDetection: React.FC = () => {
     smoothedLandmarksRef.current = []
   }, [])
 
+  // Calcula valores por defecto para las props del feedback
+  const totalJoints = selectedExercise?.joints.length || 0
+  const correctJoints = Object.entries(angleStates).filter(([joint, state]) => state === AngleState.GOOD).length
+  const progress = totalJoints > 0 ? Math.round((correctJoints / totalJoints) * 100) : 0
+  const isCorrect = progress >= 80 // Puedes ajustar este umbral
+  const repetitionCount = 0 // TODO: Implementa la lógica real
+  const exerciseTimer = 0 // TODO: Implementa la lógica real
+  const gripCorrect = true // TODO: Implementa la lógica real
+  const handFeedback = "" // TODO: Implementa la lógica real
+
   return (
     <div className="flex flex-col items-center justify-center w-full max-w-6xl mx-auto px-4">
       <h1 className="text-center text-2xl md:text-3xl font-bold mb-4">Pose Detection using MediaPipe</h1>
@@ -556,63 +712,95 @@ const PoseDetection: React.FC = () => {
           <p className="text-sm md:text-base text-gray-600">{selectedExercise.description}</p>
         </div>
       )}
+{/* Contenedor principal: cámara a la izquierda, instrucciones y video a la derecha */}
+<div className="flex flex-row gap-6 w-full items-start justify-center">
+  {/* Sección de la cámara (video + canvas) */}
+  <div className="relative w-[860px] h-[645px] border border-gray-300 rounded overflow-hidden">
+    <video
+      ref={videoRef}
+      autoPlay
+      playsInline
+      width="860"
+      height="645"
+      className="absolute top-0 left-0 w-full h-full transform scale-x-[-1] object-cover"
+    />
 
-      {/* Contenedor principal para cámara y video - uno sobre otro */}
-      <div className="flex flex-col gap-6 w-full items-center">
-        {/* Video y canvas - con el tamaño especificado */}
-        <div className="relative w-[860px] h-[645px] border border-gray-300 rounded overflow-hidden">
-          <video
-            ref={videoRef}
-            autoPlay
-            playsInline
-            width="860"
-            height="645"
-            className="absolute top-0 left-0 w-full h-full transform scale-x-[-1] object-cover"
-          />
+    <canvas
+      ref={canvasRef}
+      id="output_canvas"
+      width="860"
+      height="645"
+      className="absolute top-0 left-0 w-full h-full"
+    />
 
-          <canvas
-            ref={canvasRef}
-            id="output_canvas"
-            width="860"
-            height="645"
-            className="absolute top-0 left-0 w-full h-full"
-          />
+    <canvas
+      ref={canvas2Ref}
+      id="output_canvas2"
+      width="860"
+      height="645"
+      className="absolute top-0 left-0 w-full h-full z-10"
+    />
 
-          <canvas
-            ref={canvas2Ref}
-            id="output_canvas2"
-            width="860"
-            height="645"
-            className="absolute top-0 left-0 w-full h-full z-10"
-          />
-
-          {!webcamRunning && !isLoading && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 text-white">
-              <p>Cámara desactivada</p>
-            </div>
-          )}
-
-          {isLoading && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 text-white">
-              <p>Cargando modelo...</p>
-            </div>
-          )}
-        </div>
-
-        {/* Contenedor para video de referencia - mismo tamaño que la cámara */}
-        <div className="relative w-[860px] h-[645px] border border-gray-300 rounded overflow-hidden bg-gray-100">
-          {hasReferenceVideo ? (
-            <video ref={referenceVideoRef} controls width="860" height="645" className="w-full h-full object-cover">
-              <source src={exerciseVideos[selectedExerciseId]} type="video/mp4" />
-              Tu navegador no soporta el elemento de video.
-            </video>
-          ) : (
-            <div className="absolute inset-0 flex items-center justify-center text-gray-500">
-              <p>Selecciona un ejercicio complejo para ver el video de referencia</p>
-            </div>
-          )}
-        </div>
+    {!webcamRunning && !isLoading && (
+      <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 text-white">
+        <p>Cámara desactivada</p>
       </div>
+    )}
+
+    {isLoading && (
+      <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 text-white">
+        <p>Cargando modelo...</p>
+      </div>
+    )}
+  </div>
+
+  {/* Panel derecho: instrucciones + video de referencia */}
+  <div className="flex flex-col gap-4 w-[400px]">
+    {/* Instrucciones generales */}
+    {!selectedExercise && (
+      <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+        <h3 className="text-lg font-semibold mb-2">Instrucciones</h3>
+        <ol className="list-decimal pl-5 space-y-2">
+          <li>Selecciona un ejercicio del menú desplegable</li>
+          <li>Posiciónate frente a la cámara de modo que tu cuerpo completo sea visible</li>
+          <li>Mantén una buena iluminación para mejorar la detección</li>
+          <li>Sigue las instrucciones específicas para cada ejercicio</li>
+          <li>Observa el feedback en tiempo real para corregir tu postura</li>
+        </ol>
+      </div>
+    )}
+
+    {/* Componente de feedback */}
+    {selectedExercise && (
+      <ExerciseFeedback
+        exercise={selectedExercise}
+        angles={angles}
+        angleStates={angleStates}
+        gripCorrect={gripCorrect}
+        handFeedback={handFeedback}
+        progress={progress}
+        isCorrect={isCorrect}
+        repetitionCount={repetitionCount}
+        exerciseTimer={exerciseTimer}
+      />
+    )}
+
+    {/* Video de referencia */}
+    <div className="relative w-full h-[360px] border border-gray-300 rounded overflow-hidden bg-gray-100">
+      {hasReferenceVideo ? (
+        <video ref={referenceVideoRef} controls className="w-full h-full object-cover">
+          <source src={exerciseVideos[selectedExerciseId]} type="video/mp4" />
+          Tu navegador no soporta el elemento de video.
+        </video>
+      ) : (
+        <div className="absolute inset-0 flex items-center justify-center text-gray-500 text-center px-4">
+          <p>Selecciona un ejercicio complejo para ver el video de referencia</p>
+        </div>
+      )}
+    </div>
+  </div>
+</div>
+
     </div>
   )
 }
