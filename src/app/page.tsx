@@ -5,8 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import Image from "next/image";
 import Link from "next/link";
-import { Clock, Calendar, BarChart, X } from "lucide-react";
+import { Clock, Calendar, BarChart, X, UserCircle } from "lucide-react";
 import Modal from "@/components/ui/Modal";
+import { useAuth } from "@/app/contexts/AuthContext";
+import { useRouter } from "next/navigation";
 
 const images = [
   "https://res.cloudinary.com/sdhsports/image/upload/v1740148816/Designer_3_i730su.jpg",
@@ -17,16 +19,19 @@ const images = [
 export default function Home() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showModal, setShowModal] = useState(false);
+  const [showModalTienda, setShowModalTienda] = useState(false);
   const [showContactModal, setShowContactModal] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
   const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
     // Simulate loading time
     const timer = setTimeout(() => {
       setLoading(false);
-    }, 3000);
+    }, 1000);
 
     const interval = setInterval(() => {
       setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
@@ -42,13 +47,33 @@ export default function Home() {
     setShowModal(true);
   };
 
+  const handleOpenModalTienda = () => {
+    setShowModalTienda(true);
+  };
+
   const handleCloseModal = () => {
     setShowModal(false);
+  };
+
+ const handleCloseModalTienda = () => {
+    setShowModalTienda(false);
   };
 
   const handleLoginRedirect = () => {
     setShowModal(false);
     window.location.href = "/auth/login";
+  };
+
+  const handleViewProfile = () => {
+    router.push("/dashboard/profile");
+  };
+
+  const handleLogout = async () => {
+    // Si usas Firebase Auth:
+    const { signOut } = await import("firebase/auth");
+    const { auth } = await import("@/lib/firebase");
+    await signOut(auth);
+    router.push("/");
   };
 
   // Manejadores para los modales del footer
@@ -97,33 +122,63 @@ export default function Home() {
 
   return (
     <main className="min-h-screen">
-      {/* Navbar */}
-      <nav className="bg-background py-4 px-6 flex items-center sticky justify-between">
-        <div className="flex items-center gap-8">
-          <Link href="/" className="flex items-center">
+      {/* Navbar estilo dashboard/store */}
+      <nav className="bg-white/80 backdrop-blur py-4 px-6 flex items-center justify-between shadow-lg sticky top-0 z-30">
+        <div className="flex items-center gap-4">
+          <Link href="/" className="flex items-center group">
             <Image
               src="https://res.cloudinary.com/sdhsports/image/upload/v1742563367/powermax_logo_oficial_awxper.png"
               alt="PowerMAX Logo"
-              width={80}
-              height={80}
-              className="mr-2 rounded-full"
+              width={60}
+              height={60}
+              className="mr-2 rounded-full border-2 group-hover:scale-110 transition-transform"
             />
-            <span className="text-xl font-bold">PowerMAX</span>
+            <span className="text-2xl font-extrabold tracking-tight hidden sm:block group-hover:text-red-600 transition-colors">
+              PowerMAX
+            </span>
           </Link>
           <div className="hidden md:flex gap-4">
-            <Link href="/rutinas" className="hover:text-gray-600">Rutinas</Link>
+            <Link href="/rutines" className="hover:text-gray-600">Rutinas</Link>
             <Link href="/store" className="hover:text-gray-600">Tienda</Link>
-            <Link href="/acerca-de" className="hover:text-gray-600">Acerca De PowerMAX</Link>
+            <Link href="/about-us" className="hover:text-gray-600">Acerca De PowerMAX</Link>
           </div>
         </div>
-        <div className="flex gap-4">
-          <Link href="/auth/login">
-            <Button variant="default">Iniciar Sesión</Button>
-          </Link>
-
-          <Link href="/auth/register">
-            <Button variant="default">Registrarse</Button>
-          </Link>
+        <div className="flex gap-2">
+          {user ? (
+            <>
+              <Button
+                variant="outline"
+                onClick={handleViewProfile}
+                className="flex items-center gap-2"
+              >
+                <UserCircle className="w-5 h-5" /> Perfil
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={handleLogout}
+                className="flex items-center gap-2"
+              >
+                <span>Cerrar Sesión</span>
+              </Button>
+            </>
+          ) : (
+            <>
+              <Link href="/auth/login">
+                <Button
+                  className="flex items-center gap-2"
+                >
+                  Iniciar Sesión
+                </Button>
+              </Link>
+              <Link href="/auth/register">
+                <Button
+                  className="flex items-center gap-2"
+                >
+                  Registrarse
+                </Button>
+              </Link>
+            </>
+          )}
         </div>
       </nav>
 
@@ -148,7 +203,7 @@ export default function Home() {
           <div className="flex flex-wrap justify-center gap-4 mt-6">
             <Button variant="secondary" size="lg">Explorar Rutinas</Button>
             <Button variant="secondary" size="lg" onClick={handleOpenModal}>Calcular IMC</Button>
-            <Button variant="secondary" size="lg">Visitar Tienda</Button>
+            <Button variant="secondary" size="lg" onClick={handleOpenModalTienda}>Visitar Tienda</Button>
           </div>
         </div>
       </section>
@@ -170,7 +225,9 @@ export default function Home() {
                 <BarChart className="h-5 w-5" /><span>Nivel: Intermedio</span>
               </div>
             </div>
+            <Link href="/rutines/fuerza" className="w-full">
             <Button className="w-full">Comenzar</Button>
+            </Link>
           </Card>
 
           <Card className="p-6">
@@ -187,7 +244,9 @@ export default function Home() {
                 <BarChart className="h-5 w-5" /><span>Nivel: Principiante</span>
               </div>
             </div>
+            <Link href="/rutines/cardio" className="w-full">
             <Button className="w-full">Comenzar</Button>
+            </Link>
           </Card>
 
           <Card className="p-6">
@@ -204,7 +263,10 @@ export default function Home() {
                 <BarChart className="h-5 w-5" /><span>Nivel: Todos los niveles</span>
               </div>
             </div>
+            <Link href="/rutines/yoga" className="w-full">
             <Button className="w-full">Comenzar</Button>
+            </Link>
+            
           </Card>
         </div>
       </section>
@@ -221,12 +283,26 @@ export default function Home() {
       {/* Modal de IMC */}
       {showModal && (
         <Modal onClose={handleCloseModal}>
-          <section className="flex flex-col items-center justify-center text-center bg-white p-8 rounded-xl shadow-lg transition-all duration-300 animate-in fade-in slide-in-from-bottom-4 zoom-in-95">
+          <section className="flex flex-col items-center justify-center text-center bg-white p-8 rounded-xl transition-all duration-300 animate-in fade-in slide-in-from-bottom-4 zoom-in-95">
             <h2 className="text-xl font-bold mb-4">¿Quieres calcular tu IMC?</h2>
             <p>Para hacer esto debes iniciar sesión. ¿Deseas hacerlo?</p>
             <div className="flex gap-4 mt-6">
               <Button onClick={handleLoginRedirect}>Sí, Iniciar Sesión</Button>
               <Button variant="secondary" onClick={handleCloseModal}>Cancelar</Button>
+            </div>
+          </section>
+        </Modal>
+      )}
+
+            {/* Modal de IMC */}
+      {showModalTienda && (
+        <Modal onClose={handleCloseModalTienda}>
+          <section className="flex flex-col items-center justify-center text-center bg-white p-8 rounded-xl transition-all duration-300 animate-in fade-in slide-in-from-bottom-4 zoom-in-95">
+            <h2 className="text-xl font-bold mb-4">¿Quieres ingresar a la Tienda?</h2>
+            <p>Para hacer esto debes iniciar sesión. ¿Deseas hacerlo?</p>
+            <div className="flex gap-4 mt-6">
+              <Button onClick={handleLoginRedirect}>Sí, Iniciar Sesión</Button>
+              <Button variant="secondary" onClick={handleCloseModalTienda}>Cancelar</Button>
             </div>
           </section>
         </Modal>
