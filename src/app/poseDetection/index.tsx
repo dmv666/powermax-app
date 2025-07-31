@@ -16,6 +16,12 @@ import {
   rgbToString,
 } from "./color-utils"
 import { smoothLandmarks } from "./smoothing-utils"
+import { Menu, X, UserCircle } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import Image from "next/image"
+import Link from "next/link"
+import { useAuth } from "@/app/contexts/AuthContext"
+import { useRouter } from "next/navigation"
 
 // Mapeo de ejercicios a videos de referencia
 // NOTA: Reemplazar las URLs con los videos reales
@@ -194,6 +200,15 @@ const PoseDetection: React.FC = () => {
   const lastDetectionTimeRef = useRef<number>(0)
   const detectedPoseRef = useRef<any>(null)
   const smoothedLandmarksRef = useRef<SmoothedLandmark[]>([])
+  const { user } = useAuth()
+  const router = useRouter()
+  const [offcanvasOpen, setOffcanvasOpen] = useState(false)
+
+  // Función para cerrar sesión
+  function handleLogout() {
+    // Implementa aquí la lógica de logout si existe, o elimina esta función si no es necesaria
+    router.push("/auth/login")
+  }
 
   // Obtener el ejercicio seleccionado
   const selectedExercise = exercises.find((ex) => ex.id === selectedExerciseId) || null
@@ -633,9 +648,133 @@ const PoseDetection: React.FC = () => {
   const gripCorrect = true // TODO: Implementa la lógica real
   const handFeedback = "" // TODO: Implementa la lógica real
 
+  // Función para ver el perfil
+  function handleViewProfile() {
+    // Lógica para ver el perfil
+    console.log('Ver perfil');
+  }
+
   return (
     <div className="flex flex-col items-center justify-center w-full max-w-6xl mx-auto px-4">
-      <h1 className="text-center text-2xl md:text-3xl font-bold mb-4">Pose Detection using MediaPipe</h1>
+      {/* Navbar Offcanvas estilo Bootstrap */}
+      <nav className="bg-white/90 fixed top-0 left-0 w-full z-50 shadow">
+        <div className="mx-auto flex items-center py-2 px-4 ml-0 mr-0">
+          <Link href="/" className="flex items-center group">
+            <Image
+              src="https://res.cloudinary.com/sdhsports/image/upload/v1742563367/powermax_logo_oficial_awxper.png"
+              alt="PowerMAX Logo"
+              width={60}
+              height={60}
+              className="mr-2 rounded-full border-2 group-hover:scale-110 transition-transform"
+            />
+            <span className="text-2xl font-extrabold tracking-tight hidden sm:block group-hover:text-red-600 transition-colors">
+              PowerMAX
+            </span>
+          </Link>
+          <button
+            className="lg:hidden p-2 ml-auto"
+            aria-label="Toggle navigation"
+            onClick={() => setOffcanvasOpen(true)}
+          >
+            <Menu className="w-7 h-7" />
+          </button>
+          <div className="hidden lg:flex gap-4 items-center ml-8">
+            <Link href="/dashboard" className="hover:text-gray-600">Dashboard</Link>
+            <Link href="/rutines" className="hover:text-gray-600">Rutinas</Link>
+            <Link href="/store" className="hover:text-gray-600">Tienda</Link>
+          </div>
+          <div className="hidden lg:flex gap-2 items-center ml-auto">
+            {user ? (
+              <>
+                <Button
+                  variant="outline"
+                  onClick={handleViewProfile}
+                  className="flex items-center gap-2"
+                >
+                  <UserCircle className="w-5 h-5" /> Perfil
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={handleLogout}
+                  className="flex items-center gap-2"
+                >
+                  <span>Cerrar Sesión</span>
+                </Button>
+              </>
+            ) : (
+              <>
+                <Link href="/auth/login">
+                  <Button variant="default">Iniciar Sesión</Button>
+                </Link>
+                <Link href="/auth/register">
+                  <Button variant="default">Registrarse</Button>
+                </Link>
+              </>
+            )}
+          </div>
+        </div>
+        {/* Offcanvas */}
+        <div
+          className={`fixed inset-0 z-50 transition-all duration-300 ${offcanvasOpen ? "visible" : "invisible pointer-events-none"}`}
+          style={{ background: offcanvasOpen ? "rgba(0,0,0,0.4)" : "transparent" }}
+          onClick={() => setOffcanvasOpen(false)}
+        >
+          <aside
+            className={`fixed top-0 right-0 h-full w-72 bg-white shadow-lg transition-transform duration-300 ${offcanvasOpen ? "translate-x-0" : "translate-x-full"}`}
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between p-4 border-b">
+              <h5 className="text-lg font-bold">Menú</h5>
+              <button className="p-2" onClick={() => setOffcanvasOpen(false)} aria-label="Cerrar menú">
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            <nav className="flex flex-col gap-2 p-4">
+              <Link href="/" className="hover:text-gray-600" onClick={() => setOffcanvasOpen(false)}>Inicio</Link>
+              <Link href="/dashboard" className="hover:text-gray-600" onClick={() => setOffcanvasOpen(false)}>Dashboard</Link>
+              <Link href="/rutines" className="hover:text-gray-600" onClick={() => setOffcanvasOpen(false)}>Rutinas</Link>
+              <Link href="/store" className="hover:text-gray-600" onClick={() => setOffcanvasOpen(false)}>Tienda</Link>
+              <div className="border-t my-4" />
+              {user ? (
+                <>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setOffcanvasOpen(false)
+                      handleViewProfile()
+                    }}
+                    className="flex items-center gap-2 w-full justify-start"
+                  >
+                    <UserCircle className="w-5 h-5" /> Perfil
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    onClick={() => {
+                      setOffcanvasOpen(false)
+                      handleLogout()
+                    }}
+                    className="flex items-center gap-2 w-full justify-start"
+                  >
+                    <span>Cerrar Sesión</span>
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Link href="/auth/login" onClick={() => setOffcanvasOpen(false)}>
+                    <Button variant="default" className="w-full mb-2">Iniciar Sesión</Button>
+                  </Link>
+                  <Link href="/auth/register" onClick={() => setOffcanvasOpen(false)}>
+                    <Button variant="default" className="w-full">Registrarse</Button>
+                  </Link>
+                </>
+              )}
+            </nav>
+          </aside>
+        </div>
+      </nav>
+
+      {/* ...existing code... */}
+      <h1 className="text-center text-2xl md:text-3xl font-bold mt-20 mb-4">Pose Detection using MediaPipe</h1>
 
       {/* Botones para controlar la cámara */}
       <div className="flex flex-wrap justify-center gap-4 mb-6 w-full">

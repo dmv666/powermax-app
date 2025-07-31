@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import Image from "next/image";
 import Link from "next/link";
 import Modal from "@/components/ui/Modal";
-import { X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { useAuth } from "@/app/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 
@@ -69,6 +69,9 @@ export default function Component() {
   const { user } = useAuth();
   const router = useRouter();
 
+  // --- Offcanvas state for mobile menu ---
+  const [offcanvasOpen, setOffcanvasOpen] = useState(false);
+
   const handleViewProfile = () => {
     router.push("/dashboard/profile");
   };
@@ -77,14 +80,16 @@ export default function Component() {
     const { signOut } = await import("firebase/auth");
     const { auth } = await import("@/lib/firebase");
     await signOut(auth);
+    localStorage.clear();
+    sessionStorage.clear();
     router.push("/");
   };
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header */}
-      <nav className="bg-white/80 backdrop-blur py-4 px-6 flex items-center justify-between shadow-lg sticky top-0 z-30">
-        <div className="flex items-center gap-4">
+      {/* Navbar Offcanvas estilo Bootstrap */}
+      <nav className="bg-white/90 fixed top-0 left-0 w-full z-50 shadow">
+        <div className="mx-auto flex items-center py-2 px-4 ml-0 mr-0">
           <Link href="/" className="flex items-center group">
             <Image
               src="https://res.cloudinary.com/sdhsports/image/upload/v1742563367/powermax_logo_oficial_awxper.png"
@@ -97,45 +102,110 @@ export default function Component() {
               PowerMAX
             </span>
           </Link>
-          <div className="hidden md:flex gap-4">
-            <Link href="/store" className="hover:text-gray-600">Tienda</Link>
+          <button
+            className="lg:hidden p-2 ml-auto"
+            aria-label="Toggle navigation"
+            onClick={() => setOffcanvasOpen(true)}
+          >
+            <Menu className="w-7 h-7" />
+          </button>
+          <div className="hidden lg:flex gap-4 items-center ml-8">
             <Link href="/dashboard" className="hover:text-gray-600">Dashboard</Link>
-            <Link href="/poseDetection" className="hover:text-gray-600">Detector de Ejercicios</Link>
+            <Link href="/store" className="hover:text-gray-600">Tienda</Link>
+            <Link href="/poseDetection" className="hover:text-gray-600">Detector de movimientos</Link>
+          </div>
+          <div className="hidden lg:flex gap-2 items-center ml-auto">
+            {user ? (
+              <>
+                <Button
+                  variant="outline"
+                  onClick={handleViewProfile}
+                  className="flex items-center gap-2"
+                >
+                  <UserCircle className="w-5 h-5" /> Perfil
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={handleLogout}
+                  className="flex items-center gap-2"
+                >
+                  <span>Cerrar Sesión</span>
+                </Button>
+              </>
+            ) : (
+              <>
+                <Link href="/auth/login">
+                  <Button variant="default">Iniciar Sesión</Button>
+                </Link>
+                <Link href="/auth/register">
+                  <Button variant="default">Registrarse</Button>
+                </Link>
+              </>
+            )}
           </div>
         </div>
-        <div className="flex gap-2">
-          {user ? (
-            <>
-              <Button
-                variant="outline"
-                onClick={handleViewProfile}
-                className="flex items-center gap-2"
-              >
-                <UserCircle className="w-5 h-5" /> Perfil
-              </Button>
-              <Button
-                variant="destructive"
-                onClick={handleLogout}
-                className="flex items-center gap-2"
-              >
-                <span>Cerrar Sesión</span>
-              </Button>
-            </>
-          ) : (
-            <>
-              <Link href="/auth/login">
-                <Button variant="default">Iniciar Sesión</Button>
-              </Link>
-              <Link href="/auth/register">
-                <Button variant="default">Registrarse</Button>
-              </Link>
-            </>
-          )}
+        {/* Offcanvas */}
+        <div
+          className={`fixed inset-0 z-50 transition-all duration-300 ${offcanvasOpen ? "visible" : "invisible pointer-events-none"}`}
+          style={{ background: offcanvasOpen ? "rgba(0,0,0,0.4)" : "transparent" }}
+          onClick={() => setOffcanvasOpen(false)}
+        >
+          <aside
+            className={`fixed top-0 right-0 h-full w-72 bg-white shadow-lg transition-transform duration-300 ${offcanvasOpen ? "translate-x-0" : "translate-x-full"}`}
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between p-4 border-b">
+              <h5 className="text-lg font-bold">Menú</h5>
+              <button className="p-2" onClick={() => setOffcanvasOpen(false)} aria-label="Cerrar menú">
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            <nav className="flex flex-col gap-2 p-4">
+              <Link href="/" className="hover:text-gray-600" onClick={() => setOffcanvasOpen(false)}>Inicio</Link>
+              <Link href="/dashboard" className="hover:text-gray-600" onClick={() => setOffcanvasOpen(false)}>Dashboard</Link>
+              <Link href="/store" className="hover:text-gray-600" onClick={() => setOffcanvasOpen(false)}>Tienda</Link>
+              <Link href="/poseDetection" className="hover:text-gray-600" onClick={() => setOffcanvasOpen(false)}>Detector de movimientos</Link>
+              <div className="border-t my-4" />
+              {user ? (
+                <>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setOffcanvasOpen(false);
+                      handleViewProfile();
+                    }}
+                    className="flex items-center gap-2 w-full justify-start"
+                  >
+                    <UserCircle className="w-5 h-5" /> Perfil
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    onClick={() => {
+                      setOffcanvasOpen(false);
+                      handleLogout();
+                    }}
+                    className="flex items-center gap-2 w-full justify-start"
+                  >
+                    <span>Cerrar Sesión</span>
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Link href="/auth/login" onClick={() => setOffcanvasOpen(false)}>
+                    <Button variant="default" className="w-full mb-2">Iniciar Sesión</Button>
+                  </Link>
+                  <Link href="/auth/register" onClick={() => setOffcanvasOpen(false)}>
+                    <Button variant="default" className="w-full">Registrarse</Button>
+                  </Link>
+                </>
+              )}
+            </nav>
+          </aside>
         </div>
       </nav>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-6 py-12">
+      <main className="max-w-7xl mx-auto px-6 py-12 pt-32">
         <h1 className="text-3xl font-bold text-black text-center mb-12">Rutinas</h1>
 
         {/* Routines Grid */}
