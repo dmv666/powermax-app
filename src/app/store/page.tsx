@@ -177,7 +177,14 @@ export default function StorePage() {
           <div className="hidden lg:flex gap-4 items-center ml-8">
             <Link href="/dashboard" className="hover:text-gray-600">Dashboard</Link>
             <Link href="/rutines" className="hover:text-gray-600">Rutinas</Link>
+            <Link 
+              href="/store" 
+              className="text-blue-600 font-medium hover:text-blue-700 border-b-2 border-blue-600 pb-1"
+            >
+              Tienda
+            </Link>
             <Link href="/poseDetection" className="hover:text-gray-600">Detector de movimientos</Link>
+            <Link href="/chat" className="hover:text-gray-600">Chat con IA</Link>
           </div>
           <div className="hidden lg:flex gap-2 items-center ml-auto">
             <Button variant="outline" onClick={() => setIsCartOpen(true)} className="relative">
@@ -188,35 +195,23 @@ export default function StorePage() {
                 </Badge>
               )}
             </Button>
-            {user ? (
-              <>
-                <Button
-                  variant="outline"
-                  onClick={handleViewProfile}
-                  className="flex items-center gap-2"
-                >
-                  <UserCircle className="w-5 h-5" /> Perfil
-                </Button>
-                <Button
-                  variant="destructive"
-                  onClick={handleLogout}
-                  className="flex items-center gap-2"
-                >
-                  <span>Cerrar Sesión</span>
-                </Button>
-              </>
-            ) : (
-              <>
-                <Link href="/auth/login">
-                  <Button variant="default">Iniciar Sesión</Button>
-                </Link>
-                <Link href="/auth/register">
-                  <Button variant="default">Registrarse</Button>
-                </Link>
-              </>
-            )}
+            <Button
+              variant="outline"
+              onClick={handleViewProfile}
+              className="flex items-center gap-2"
+            >
+              <UserCircle className="w-5 h-5" /> Perfil
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleLogout}
+              className="flex items-center gap-2"
+            >
+              <span>Cerrar Sesión</span>
+            </Button>
           </div>
         </div>
+
         {/* Offcanvas */}
         <div
           className={`fixed inset-0 z-50 transition-all duration-300 ${offcanvasOpen ? "visible" : "invisible pointer-events-none"}`}
@@ -237,7 +232,9 @@ export default function StorePage() {
               <Link href="/" className="hover:text-gray-600" onClick={() => setOffcanvasOpen(false)}>Inicio</Link>
               <Link href="/dashboard" className="hover:text-gray-600" onClick={() => setOffcanvasOpen(false)}>Dashboard</Link>
               <Link href="/rutines" className="hover:text-gray-600" onClick={() => setOffcanvasOpen(false)}>Rutinas</Link>
+              <Link href="/store" className="text-blue-600 font-medium hover:text-blue-700" onClick={() => setOffcanvasOpen(false)}>Tienda</Link>
               <Link href="/poseDetection" className="hover:text-gray-600" onClick={() => setOffcanvasOpen(false)}>Detector de movimientos</Link>
+              <Link href="/chat" className="hover:text-gray-600" onClick={() => setOffcanvasOpen(false)}>Chat con IA</Link>
               <div className="border-t my-4" />
               <Button
                 variant="outline"

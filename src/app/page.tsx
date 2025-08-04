@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import Image from "next/image";
 import Link from "next/link";
-import { Clock, Calendar, BarChart, X, UserCircle } from "lucide-react";
+import { Clock, Calendar, BarChart, X, UserCircle, Menu } from "lucide-react";
 import Modal from "@/components/ui/Modal";
 import { useAuth } from "@/app/contexts/AuthContext";
 import { useRouter } from "next/navigation";
@@ -24,6 +24,7 @@ export default function Home() {
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [offcanvasOpen, setOffcanvasOpen] = useState(false);
   const { user } = useAuth();
   const router = useRouter();
 
@@ -31,7 +32,7 @@ export default function Home() {
     // Simulate loading time
     const timer = setTimeout(() => {
       setLoading(false);
-    }, 1000);
+    });
 
     const interval = setInterval(() => {
       setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
@@ -122,30 +123,38 @@ export default function Home() {
 
   return (
     <main className="min-h-screen">
-      {/* Navbar estilo dashboard/store */}
-      <nav className="bg-white/80 backdrop-blur py-4 px-6 flex items-center justify-between shadow-lg sticky top-0 z-30">
-        <div className="flex items-center gap-4">
-          <Link href="/" className="flex items-center group">
-            <Image
-              src="https://res.cloudinary.com/sdhsports/image/upload/v1742563367/powermax_logo_oficial_awxper.png"
-              alt="PowerMAX Logo"
-              width={60}
-              height={60}
-              className="mr-2 rounded-full border-2 group-hover:scale-110 transition-transform"
-            />
-            <span className="text-2xl font-extrabold tracking-tight hidden sm:block group-hover:text-red-600 transition-colors">
-              PowerMAX
-            </span>
-          </Link>
-          <div className="hidden md:flex gap-4">
-            <Link href="/rutines" className="hover:text-gray-600">Rutinas</Link>
-            <Link href="/store" className="hover:text-gray-600">Tienda</Link>
-            <Link href="/dashboard" className="hover:text-gray-600">Dashboard</Link>
-          </div>
-        </div>
-        <div className="flex gap-2">
-          {user ? (
-            <>
+      {/* Navbar condicional basado en autenticación */}
+      {user ? (
+        // Navbar para usuarios autenticados
+        <nav className="bg-white/90 fixed top-0 left-0 w-full z-50 shadow">
+          <div className="mx-auto flex items-center py-2 px-4 ml-0 mr-0">
+            <Link href="/" className="flex items-center group">
+              <Image
+                src="https://res.cloudinary.com/sdhsports/image/upload/v1742563367/powermax_logo_oficial_awxper.png"
+                alt="PowerMAX Logo"
+                width={60}
+                height={60}
+                className="mr-2 rounded-full border-2 group-hover:scale-110 transition-transform"
+              />
+              <span className="text-2xl font-extrabold tracking-tight hidden sm:block group-hover:text-red-600 transition-colors">
+                PowerMAX
+              </span>
+            </Link>
+            <button
+              className="lg:hidden p-2 ml-auto"
+              aria-label="Toggle navigation"
+              onClick={() => setOffcanvasOpen(true)}
+            >
+              <Menu className="w-7 h-7" />
+            </button>
+            <div className="hidden lg:flex gap-4 items-center ml-8">
+              <Link href="/dashboard" className="hover:text-gray-600">Dashboard</Link>
+              <Link href="/rutines" className="hover:text-gray-600">Rutinas</Link>
+              <Link href="/store" className="hover:text-gray-600">Tienda</Link>
+              <Link href="/poseDetection" className="hover:text-gray-600">Detector de movimientos</Link>
+              <Link href="/chat" className="hover:text-gray-600">Chat con IA</Link>
+            </div>
+            <div className="hidden lg:flex gap-2 items-center ml-auto">
               <Button
                 variant="outline"
                 onClick={handleViewProfile}
@@ -160,27 +169,144 @@ export default function Home() {
               >
                 <span>Cerrar Sesión</span>
               </Button>
-            </>
-          ) : (
-            <>
-              <Link href="/auth/login">
+            </div>
+          </div>
+
+          {/* Offcanvas */}
+          <div
+            className={`fixed inset-0 z-50 transition-all duration-300 ${offcanvasOpen ? "visible" : "invisible pointer-events-none"}`}
+            style={{ background: offcanvasOpen ? "rgba(0,0,0,0.4)" : "transparent" }}
+            onClick={() => setOffcanvasOpen(false)}
+          >
+            <aside
+              className={`fixed top-0 right-0 h-full w-72 bg-white shadow-lg transition-transform duration-300 ${offcanvasOpen ? "translate-x-0" : "translate-x-full"}`}
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between p-4 border-b">
+                <h5 className="text-lg font-bold">Menú</h5>
+                <button className="p-2" onClick={() => setOffcanvasOpen(false)} aria-label="Cerrar menú">
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+              <nav className="flex flex-col gap-2 p-4">
+                <Link href="/" className="hover:text-gray-600" onClick={() => setOffcanvasOpen(false)}>Inicio</Link>
+                <Link href="/dashboard" className="hover:text-gray-600" onClick={() => setOffcanvasOpen(false)}>Dashboard</Link>
+                <Link href="/rutines" className="hover:text-gray-600" onClick={() => setOffcanvasOpen(false)}>Rutinas</Link>
+                <Link href="/store" className="hover:text-gray-600" onClick={() => setOffcanvasOpen(false)}>Tienda</Link>
+                <Link href="/poseDetection" className="hover:text-gray-600" onClick={() => setOffcanvasOpen(false)}>Detector de movimientos</Link>
+                <Link href="/chat" className="hover:text-gray-600" onClick={() => setOffcanvasOpen(false)}>Chat con IA</Link>
+                <div className="border-t my-4" />
                 <Button
-                  className="flex items-center gap-2"
+                  variant="outline"
+                  onClick={() => {
+                    setOffcanvasOpen(false);
+                    handleViewProfile();
+                  }}
+                  className="flex items-center gap-2 w-full justify-start"
                 >
+                  <UserCircle className="w-5 h-5" /> Perfil
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={() => {
+                    setOffcanvasOpen(false);
+                    handleLogout();
+                  }}
+                  className="flex items-center gap-2 w-full justify-start"
+                >
+                  <span>Cerrar Sesión</span>
+                </Button>
+              </nav>
+            </aside>
+          </div>
+        </nav>
+      ) : (
+        // Navbar original para usuarios no autenticados
+        <nav className="bg-white/90 fixed top-0 left-0 w-full z-50 shadow">
+          <div className="mx-auto flex items-center py-2 px-4 ml-0 mr-0">
+            <Link href="/" className="flex items-center group">
+              <Image
+                src="https://res.cloudinary.com/sdhsports/image/upload/v1742563367/powermax_logo_oficial_awxper.png"
+                alt="PowerMAX Logo"
+                width={60}
+                height={60}
+                className="mr-2 rounded-full border-2 group-hover:scale-110 transition-transform"
+              />
+              <span className="text-2xl font-extrabold tracking-tight hidden sm:block group-hover:text-red-600 transition-colors">
+                PowerMAX
+              </span>
+            </Link>
+            <button
+              className="lg:hidden p-2 ml-auto"
+              aria-label="Toggle navigation"
+              onClick={() => setOffcanvasOpen(true)}
+            >
+              <Menu className="w-7 h-7" />
+            </button>
+            <div className="hidden lg:flex gap-4 items-center ml-8">
+              <Link href="/rutines" className="hover:text-gray-600">Rutinas</Link>
+              <Link href="/store" className="hover:text-gray-600">Tienda</Link>
+              <Link href="/dashboard" className="hover:text-gray-600">Dashboard</Link>
+            </div>
+            <div className="hidden lg:flex gap-2 items-center ml-auto">
+              <Link href="/auth/login">
+                <Button variant="default" className="flex items-center gap-2">
                   Iniciar Sesión
                 </Button>
               </Link>
               <Link href="/auth/register">
-                <Button
-                  className="flex items-center gap-2"
-                >
+                <Button variant="default" className="flex items-center gap-2">
                   Registrarse
                 </Button>
               </Link>
-            </>
-          )}
-        </div>
-      </nav>
+            </div>
+          </div>
+
+          {/* Offcanvas para usuarios no autenticados */}
+          <div
+            className={`fixed inset-0 z-50 transition-all duration-300 ${offcanvasOpen ? "visible" : "invisible pointer-events-none"}`}
+            style={{ background: offcanvasOpen ? "rgba(0,0,0,0.4)" : "transparent" }}
+            onClick={() => setOffcanvasOpen(false)}
+          >
+            <aside
+              className={`fixed top-0 right-0 h-full w-72 bg-white shadow-lg transition-transform duration-300 ${offcanvasOpen ? "translate-x-0" : "translate-x-full"}`}
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between p-4 border-b">
+                <h5 className="text-lg font-bold">Menú</h5>
+                <button className="p-2" onClick={() => setOffcanvasOpen(false)} aria-label="Cerrar menú">
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+              <nav className="flex flex-col gap-2 p-4">
+                <Link href="/" className="hover:text-gray-600" onClick={() => setOffcanvasOpen(false)}>Inicio</Link>
+                <Link href="/rutines" className="hover:text-gray-600" onClick={() => setOffcanvasOpen(false)}>Rutinas</Link>
+                <Link href="/store" className="hover:text-gray-600" onClick={() => setOffcanvasOpen(false)}>Tienda</Link>
+                <Link href="/dashboard" className="hover:text-gray-600" onClick={() => setOffcanvasOpen(false)}>Dashboard</Link>
+                <div className="border-t my-4" />
+                <Link 
+                  href="/auth/login" 
+                  className="w-full"
+                  onClick={() => setOffcanvasOpen(false)}
+                >
+                  <Button variant="default" className="w-full">
+                    Iniciar Sesión
+                  </Button>
+                </Link>
+                <Link 
+                  href="/auth/register" 
+                  className="w-full"
+                  onClick={() => setOffcanvasOpen(false)}
+                >
+                  <Button variant="default" className="w-full">
+                    Registrarse
+                  </Button>
+                </Link>
+              </nav>
+            </aside>
+          </div>
+        </nav>
+      )}
 
       {/* Hero Section */}
       <section className="relative min-h-[600px] flex flex-col items-center justify-center text-white gap-8 px-4 overflow-hidden">

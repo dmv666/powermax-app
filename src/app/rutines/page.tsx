@@ -66,7 +66,7 @@ export default function Component() {
   };
   // --- Fin de la lógica para modales ---
 
-  const { user } = useAuth();
+  useAuth();
   const router = useRouter();
 
   // --- Offcanvas state for mobile menu ---
@@ -111,39 +111,34 @@ export default function Component() {
           </button>
           <div className="hidden lg:flex gap-4 items-center ml-8">
             <Link href="/dashboard" className="hover:text-gray-600">Dashboard</Link>
+            <Link 
+              href="/rutines" 
+              className="text-blue-600 font-medium hover:text-blue-700 border-b-2 border-blue-600 pb-1"
+            >
+              Rutinas
+            </Link>
             <Link href="/store" className="hover:text-gray-600">Tienda</Link>
             <Link href="/poseDetection" className="hover:text-gray-600">Detector de movimientos</Link>
+            <Link href="/chat" className="hover:text-gray-600">Chat con IA</Link>
           </div>
           <div className="hidden lg:flex gap-2 items-center ml-auto">
-            {user ? (
-              <>
-                <Button
-                  variant="outline"
-                  onClick={handleViewProfile}
-                  className="flex items-center gap-2"
-                >
-                  <UserCircle className="w-5 h-5" /> Perfil
-                </Button>
-                <Button
-                  variant="destructive"
-                  onClick={handleLogout}
-                  className="flex items-center gap-2"
-                >
-                  <span>Cerrar Sesión</span>
-                </Button>
-              </>
-            ) : (
-              <>
-                <Link href="/auth/login">
-                  <Button variant="default">Iniciar Sesión</Button>
-                </Link>
-                <Link href="/auth/register">
-                  <Button variant="default">Registrarse</Button>
-                </Link>
-              </>
-            )}
+            <Button
+              variant="outline"
+              onClick={handleViewProfile}
+              className="flex items-center gap-2"
+            >
+              <UserCircle className="w-5 h-5" /> Perfil
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleLogout}
+              className="flex items-center gap-2"
+            >
+              <span>Cerrar Sesión</span>
+            </Button>
           </div>
         </div>
+
         {/* Offcanvas */}
         <div
           className={`fixed inset-0 z-50 transition-all duration-300 ${offcanvasOpen ? "visible" : "invisible pointer-events-none"}`}
@@ -163,42 +158,37 @@ export default function Component() {
             <nav className="flex flex-col gap-2 p-4">
               <Link href="/" className="hover:text-gray-600" onClick={() => setOffcanvasOpen(false)}>Inicio</Link>
               <Link href="/dashboard" className="hover:text-gray-600" onClick={() => setOffcanvasOpen(false)}>Dashboard</Link>
+              <Link 
+                href="/rutines" 
+                className="text-blue-600 font-medium hover:text-blue-700"
+                onClick={() => setOffcanvasOpen(false)}
+              >
+                Rutinas
+              </Link>
               <Link href="/store" className="hover:text-gray-600" onClick={() => setOffcanvasOpen(false)}>Tienda</Link>
               <Link href="/poseDetection" className="hover:text-gray-600" onClick={() => setOffcanvasOpen(false)}>Detector de movimientos</Link>
+              <Link href="/chat" className="hover:text-gray-600" onClick={() => setOffcanvasOpen(false)}>Chat con IA</Link>
               <div className="border-t my-4" />
-              {user ? (
-                <>
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      setOffcanvasOpen(false);
-                      handleViewProfile();
-                    }}
-                    className="flex items-center gap-2 w-full justify-start"
-                  >
-                    <UserCircle className="w-5 h-5" /> Perfil
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    onClick={() => {
-                      setOffcanvasOpen(false);
-                      handleLogout();
-                    }}
-                    className="flex items-center gap-2 w-full justify-start"
-                  >
-                    <span>Cerrar Sesión</span>
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Link href="/auth/login" onClick={() => setOffcanvasOpen(false)}>
-                    <Button variant="default" className="w-full mb-2">Iniciar Sesión</Button>
-                  </Link>
-                  <Link href="/auth/register" onClick={() => setOffcanvasOpen(false)}>
-                    <Button variant="default" className="w-full">Registrarse</Button>
-                  </Link>
-                </>
-              )}
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setOffcanvasOpen(false);
+                  handleViewProfile();
+                }}
+                className="flex items-center gap-2 w-full justify-start"
+              >
+                <UserCircle className="w-5 h-5" /> Perfil
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={() => {
+                  setOffcanvasOpen(false);
+                  handleLogout();
+                }}
+                className="flex items-center gap-2 w-full justify-start"
+              >
+                <span>Cerrar Sesión</span>
+              </Button>
             </nav>
           </aside>
         </div>
@@ -415,6 +405,17 @@ export default function Component() {
         </Modal>
       )}
 
+      {/* Loader mientras se cargan las rutinas */}
+      {false && (
+        <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-r from-blue-50 to-indigo-50">
+          <div className="relative">
+            <div className="w-16 h-16 border-4 border-blue-200 rounded-full"></div>
+            <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full absolute top-0 left-0 animate-spin"></div>
+          </div>
+          <p className="mt-4 text-lg font-medium text-gray-700">Cargando Rutinas...</p>
+          <p className="text-sm text-gray-500 mt-2">Preparando tus ejercicios personalizados</p>
+        </div>
+      )}
     </div>
   )
 }

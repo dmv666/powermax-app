@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { UserCircle, X, Dumbbell } from "lucide-react";
+import { UserCircle, X, Dumbbell, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
@@ -91,6 +91,7 @@ export default function DashboardPage() {
   const [showModal, setShowModal] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [routineIndex, setRoutineIndex] = useState(0);
+  const [offcanvasOpen, setOffcanvasOpen] = useState(false);
   const router = useRouter();
 
   // Hooks para los modales del footer
@@ -183,8 +184,8 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Navbar */}
-      <nav className="bg-white/80 backdrop-blur py-4 px-6 flex items-center justify-between shadow-lg sticky top-0 z-30">
-        <div className="flex items-center gap-4">
+      <nav className="bg-white/90 fixed top-0 left-0 w-full z-50 shadow">
+        <div className="mx-auto flex items-center py-2 px-4 ml-0 mr-0">
           <Link href="/" className="flex items-center group">
             <Image
               src="https://res.cloudinary.com/sdhsports/image/upload/v1742563367/powermax_logo_oficial_awxper.png"
@@ -197,40 +198,95 @@ export default function DashboardPage() {
               PowerMAX
             </span>
           </Link>
-          <div className="hidden md:flex gap-4">
+          <button
+            className="lg:hidden p-2 ml-auto"
+            aria-label="Toggle navigation"
+            onClick={() => setOffcanvasOpen(true)}
+          >
+            <Menu className="w-7 h-7" />
+          </button>
+          <div className="hidden lg:flex gap-4 items-center ml-8">
+            <Link 
+              href="/dashboard" 
+              className="text-blue-600 font-medium hover:text-blue-700 border-b-2 border-blue-600 pb-1"
+            >
+              Dashboard
+            </Link>
             <Link href="/rutines" className="hover:text-gray-600">Rutinas</Link>
             <Link href="/store" className="hover:text-gray-600">Tienda</Link>
-            <Link href="/poseDetection" className="hover:text-gray-600">Detector de Ejercicios</Link>
+            <Link href="/poseDetection" className="hover:text-gray-600">Detector de movimientos</Link>
+            <Link href="/chat" className="hover:text-gray-600">Chat con IA</Link>
+          </div>
+          <div className="hidden lg:flex gap-2 items-center ml-auto">
+            <Button
+              variant="outline"
+              onClick={handleViewProfile}
+              className="flex items-center gap-2"
+            >
+              <UserCircle className="w-5 h-5" /> Perfil
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleLogout}
+              className="flex items-center gap-2"
+            >
+              <span>Cerrar Sesión</span>
+            </Button>
           </div>
         </div>
-        <div className="flex gap-2">
-          {user ? (
-            <>
+
+        {/* Offcanvas */}
+        <div
+          className={`fixed inset-0 z-50 transition-all duration-300 ${offcanvasOpen ? "visible" : "invisible pointer-events-none"}`}
+          style={{ background: offcanvasOpen ? "rgba(0,0,0,0.4)" : "transparent" }}
+          onClick={() => setOffcanvasOpen(false)}
+        >
+          <aside
+            className={`fixed top-0 right-0 h-full w-72 bg-white shadow-lg transition-transform duration-300 ${offcanvasOpen ? "translate-x-0" : "translate-x-full"}`}
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between p-4 border-b">
+              <h5 className="text-lg font-bold">Menú</h5>
+              <button className="p-2" onClick={() => setOffcanvasOpen(false)} aria-label="Cerrar menú">
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            <nav className="flex flex-col gap-2 p-4">
+              <Link href="/" className="hover:text-gray-600" onClick={() => setOffcanvasOpen(false)}>Inicio</Link>
+              <Link 
+                href="/dashboard" 
+                className="text-blue-600 font-medium hover:text-blue-700"
+                onClick={() => setOffcanvasOpen(false)}
+              >
+                Dashboard
+              </Link>
+              <Link href="/rutines" className="hover:text-gray-600" onClick={() => setOffcanvasOpen(false)}>Rutinas</Link>
+              <Link href="/store" className="hover:text-gray-600" onClick={() => setOffcanvasOpen(false)}>Tienda</Link>
+              <Link href="/poseDetection" className="hover:text-gray-600" onClick={() => setOffcanvasOpen(false)}>Detector de movimientos</Link>
+              <Link href="/chat" className="hover:text-gray-600" onClick={() => setOffcanvasOpen(false)}>Chat con IA</Link>
+              <div className="border-t my-4" />
               <Button
                 variant="outline"
-                onClick={handleViewProfile}
-                className="flex items-center gap-2"
+                onClick={() => {
+                  setOffcanvasOpen(false);
+                  handleViewProfile();
+                }}
+                className="flex items-center gap-2 w-full justify-start"
               >
                 <UserCircle className="w-5 h-5" /> Perfil
               </Button>
               <Button
                 variant="destructive"
-                onClick={handleLogout}
-                className="flex items-center gap-2"
+                onClick={() => {
+                  setOffcanvasOpen(false);
+                  handleLogout();
+                }}
+                className="flex items-center gap-2 w-full justify-start"
               >
                 <span>Cerrar Sesión</span>
               </Button>
-            </>
-          ) : (
-            <>
-              <Link href="/auth/login">
-                <Button variant="default">Iniciar Sesión</Button>
-              </Link>
-              <Link href="/auth/register">
-                <Button variant="default">Registrarse</Button>
-              </Link>
-            </>
-          )}
+            </nav>
+          </aside>
         </div>
       </nav>
 
