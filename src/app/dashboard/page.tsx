@@ -40,6 +40,45 @@ const getColorByDay = (dia: string) => {
   return colors[dia] || { icon: "text-gray-500", gradient: "from-gray-100 to-gray-300" };
 };
 
+// Calcula calorías recomendadas y objetivo según IMC
+function getCaloriasRecomendadas(imcData: { weight: number; height: number; bmi: number }) {
+  const peso = imcData.weight;
+  const altura = imcData.height * 100; // en cm
+  // Ejemplo: hombre, 30 años
+  const caloriasMantenimiento = 66 + (13.7 * peso) + (5 * altura) - (6.8 * 30);
+  let objetivo = "mantener tu peso";
+  let calorias = caloriasMantenimiento;
+
+  if (imcData.bmi < 18.5) {
+    objetivo = "subir de peso";
+    calorias += 300;
+  } else if (imcData.bmi >= 25) {
+    objetivo = "bajar de peso";
+    calorias -= 300;
+  }
+
+  return { calorias: Math.round(calorias), objetivo };
+}
+
+type Objetivo = "subir de peso" | "mantener tu peso" | "bajar de peso";
+const platosSaludables: Record<Objetivo, string[]> = {
+  "subir de peso": [
+    "Avena con frutos secos y miel",
+    "Pollo a la plancha con arroz integral y aguacate",
+    "Batido de plátano, leche y mantequilla de maní"
+  ],
+  "mantener tu peso": [
+    "Ensalada de atún con huevo y verduras",
+    "Pechuga de pollo con quinoa y brócoli",
+    "Yogur natural con frutas"
+  ],
+  "bajar de peso": [
+    "Ensalada de pollo y espinaca",
+    "Salmón al horno con verduras",
+    "Tortilla de claras con tomate y espinaca"
+  ]
+};
+
 export default function DashboardPage() {
   // 1. TODAS LAS LLAMADAS A HOOKS VAN PRIMERO
   const { user, loading } = useAuth();
@@ -324,6 +363,34 @@ export default function DashboardPage() {
               ))}
             </div>
           )}
+          {/* Guía nutricional recomendada */}
+{imcData && (
+  <div className="relative w-full mx-auto mt-10 flex flex-col items-center">
+    <h2 className="text-xl font-bold mb-2 text-green-800">Guía Nutricional Recomendada</h2>
+    {(() => {
+      const { calorias, objetivo } = getCaloriasRecomendadas(imcData);
+      return (
+        <>
+          <p className="text-gray-700 mb-2">
+            Para <span className="font-semibold">{objetivo}</span>, te recomendamos consumir aproximadamente <span className="font-bold">{calorias} kcal</span> al día.
+          </p>
+          <p className="text-gray-700 mb-4">Ejemplos de platos saludables:</p>
+          <div className="flex flex-wrap gap-4 justify-center">
+            {platosSaludables[objetivo as Objetivo].map((plato: string, idx: number) => (
+              <div
+                key={idx}
+                className="bg-white rounded-xl shadow-lg p-5 min-w-[220px] max-w-xs flex flex-col items-center border border-green-100 hover:shadow-2xl transition"
+              >
+                <span className="text-green-600 text-2xl mb-2">🥗</span>
+                <p className="text-gray-800 text-center font-medium">{plato}</p>
+              </div>
+            ))}
+          </div>
+        </>
+      );
+    })()}
+  </div>
+)}
         </div>
       )}
 

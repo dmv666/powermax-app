@@ -140,7 +140,7 @@ export default function Home() {
           <div className="hidden md:flex gap-4">
             <Link href="/rutines" className="hover:text-gray-600">Rutinas</Link>
             <Link href="/store" className="hover:text-gray-600">Tienda</Link>
-            <Link href="/about-us" className="hover:text-gray-600">Acerca De PowerMAX</Link>
+            <Link href="/dashboard" className="hover:text-gray-600">Dashboard</Link>
           </div>
         </div>
         <div className="flex gap-2">
@@ -201,7 +201,9 @@ export default function Home() {
           <h1 className="text-4xl font-bold">Transforma tu Cuerpo con PowerMAX</h1>
           <p className="text-lg mt-2">Elige tu rutina ideal y alcanza tus metas fitness</p>
           <div className="flex flex-wrap justify-center gap-4 mt-6">
+            <Link href="/rutines">
             <Button variant="secondary" size="lg">Explorar Rutinas</Button>
+            </Link>
             <Button variant="secondary" size="lg" onClick={handleOpenModal}>Calcular IMC</Button>
             <Button variant="secondary" size="lg" onClick={handleOpenModalTienda}>Visitar Tienda</Button>
           </div>
