@@ -772,8 +772,7 @@ const PoseDetection: React.FC = () => {
           </aside>
         </div>
       </nav>
-
-      {/* ...existing code... */}
+      
       <h1 className="text-center text-2xl md:text-3xl font-bold mt-20 mb-4">Pose Detection using MediaPipe</h1>
 
       {/* Botones para controlar la cámara */}
@@ -851,10 +850,10 @@ const PoseDetection: React.FC = () => {
           <p className="text-sm md:text-base text-gray-600">{selectedExercise.description}</p>
         </div>
       )}
-{/* Contenedor principal: cámara a la izquierda, instrucciones y video a la derecha */}
-<div className="flex flex-row gap-6 w-full items-start justify-center">
+{/* Contenedor principal: cámara y panel derecho en fila en lg, columna en móvil */}
+<div className="flex flex-col gap-6 w-full items-center justify-center lg:flex-row lg:items-start lg:gap-8">
   {/* Sección de la cámara (video + canvas) */}
-  <div className="relative w-[860px] h-[645px] border border-gray-300 rounded overflow-hidden">
+  <div className="relative w-full max-w-[860px] aspect-[860/645] border border-gray-300 rounded overflow-hidden lg:w-[860px] lg:h-[645px]">
     <video
       ref={videoRef}
       autoPlay
@@ -893,12 +892,12 @@ const PoseDetection: React.FC = () => {
     )}
   </div>
 
-  {/* Panel derecho: instrucciones + video de referencia */}
-  <div className="flex flex-col gap-4 w-[400px]">
+  {/* Panel derecho: instrucciones + feedback + video de referencia */}
+  <div className="flex flex-col gap-4 w-full max-w-[400px] lg:w-[400px]">
     {/* Instrucciones generales */}
     {!selectedExercise && (
       <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-        <h3 className="text-lg font-semibold mb-2">Instrucciones</h3>
+        <h3 className="text-md font-semibold mb-2">Instrucciones</h3>
         <ol className="list-decimal pl-5 space-y-2">
           <li>Selecciona un ejercicio del menú desplegable</li>
           <li>Posiciónate frente a la cámara de modo que tu cuerpo completo sea visible</li>
@@ -925,7 +924,7 @@ const PoseDetection: React.FC = () => {
     )}
 
     {/* Video de referencia */}
-    <div className="relative w-full h-[360px] border border-gray-300 rounded overflow-hidden bg-gray-100">
+    <div className="relative w-full max-w-[400px] aspect-video border border-gray-300 rounded overflow-hidden bg-gray-100 lg:h-[360px]">
       {hasReferenceVideo ? (
         <video ref={referenceVideoRef} controls className="w-full h-full object-cover">
           <source src={exerciseVideos[selectedExerciseId]} type="video/mp4" />
