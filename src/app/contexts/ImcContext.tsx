@@ -4,7 +4,6 @@ import { createContext, useContext, useEffect, useState, ReactNode } from "react
 import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore"
 import { useAuth } from "@/app/contexts/AuthContext"
 
-
 const db = getFirestore()
 
 type IMCData = {
@@ -13,18 +12,23 @@ type IMCData = {
   bmi: number
   routine: string
   state: "underweight" | "normal" | "overweight" | "obesity"
+  plan?: string | null // Cambiamos para ser más explícito
 }
+
+type SaveIMCDataInput = Pick<IMCData, "weight" | "height" | "bmi"> & { plan?: string };
 
 type IMCContextType = {
   imcData: IMCData | null
   loading: boolean
-  saveIMCData: (data: Pick<IMCData, "weight" | "height" | "bmi">) => Promise<void>
+  saveIMCData: (data: SaveIMCDataInput) => Promise<void>
+  updatePlan: (plan: string) => Promise<void> // Nueva función para actualizar solo el plan
 }
 
 const IMCContext = createContext<IMCContextType>({
   imcData: null,
   loading: true,
-  saveIMCData: async () => {}
+  saveIMCData: async () => {},
+  updatePlan: async () => {}
 })
 
 function getIMCState(bmi: number): IMCData["state"] {
@@ -49,37 +53,53 @@ export const IMCProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const fetchIMCData = async () => {
       if (!user) {
-        setImcData(null) // <-- Limpia el estado cuando no hay usuario
+        setImcData(null)
         setLoading(false)
         return
       }
 
       setLoading(true)
-      const userRef = doc(db, "users", user.uid)
-      const userSnap = await getDoc(userRef)
+      try {
+        const userRef = doc(db, "users", user.uid)
+        const userSnap = await getDoc(userRef)
 
-      if (userSnap.exists()) {
-        const userData = userSnap.data()
-        if (userData.imcData) {
-          setImcData(userData.imcData)
+        if (userSnap.exists()) {
+          const userData = userSnap.data()
+          if (userData.imcData) {
+            // Asegurar que el plan sea explícitamente null si no existe
+            const imcDataWithPlan = {
+              ...userData.imcData,
+              plan: userData.imcData.plan || null
+            }
+            setImcData(imcDataWithPlan)
+          } else {
+            setImcData(null)
+          }
         } else {
           setImcData(null)
         }
-      } else {
+      } catch (error) {
+        console.error("Error fetching IMC data:", error)
         setImcData(null)
+      } finally {
+        setLoading(false)
       }
-      setLoading(false)
     }
 
     fetchIMCData()
   }, [user])
 
-  const saveIMCData = async (data: Pick<IMCData, "weight" | "height" | "bmi">) => {
+  const saveIMCData = async (data: SaveIMCDataInput) => {
     if (!user) return
 
     const state = getIMCState(data.bmi)
     const routine = getRoutineByIMC(data.bmi)
-    const dataWithState: IMCData = { ...data, state, routine }
+    const dataWithState: IMCData = { 
+      ...data, 
+      state, 
+      routine,
+      plan: data.plan || null // Asegurar que sea null si no hay plan
+    }
 
     const userRef = doc(db, "users", user.uid)
     try {
@@ -90,8 +110,27 @@ export const IMCProvider = ({ children }: { children: ReactNode }) => {
     }
   }
 
+  // Nueva función para actualizar solo el plan
+  const updatePlan = async (plan: string) => {
+    if (!user || !imcData) return
+
+    const updatedIMCData: IMCData = {
+      ...imcData,
+      plan: plan
+    }
+
+    const userRef = doc(db, "users", user.uid)
+    try {
+      await setDoc(userRef, { imcData: updatedIMCData }, { merge: true })
+      setImcData(updatedIMCData)
+      console.log(`Plan actualizado a: ${plan}`)
+    } catch (error) {
+      console.error("Error actualizando el plan:", error)
+    }
+  }
+
   return (
-    <IMCContext.Provider value={{ imcData, loading, saveIMCData }}>
+    <IMCContext.Provider value={{ imcData, loading, saveIMCData, updatePlan }}>
       {children}
     </IMCContext.Provider>
   )

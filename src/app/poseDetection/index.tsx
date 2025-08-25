@@ -184,6 +184,7 @@ const PoseDetection: React.FC = () => {
   const [webcamRunning, setWebcamRunning] = useState<boolean>(false)
   const [poseLandmarker, setPoseLandmarker] = useState<PoseLandmarker | null>(null)
   const [isLoading, setIsLoading] = useState<boolean>(true)
+  const [loading, setLoading] = useState<boolean>(true)
 
   const [leftJoint, setLeftJoint] = useState<string>("default")
   const [rightJoint, setRightJoint] = useState<string>("default")
@@ -220,6 +221,7 @@ const PoseDetection: React.FC = () => {
   useEffect(() => {
     const initPoseLandmarker = async () => {
       setIsLoading(true)
+      setLoading(true)
       try {
         const landmarker = await createPoseLandmarker()
         setPoseLandmarker(landmarker)
@@ -227,6 +229,7 @@ const PoseDetection: React.FC = () => {
         console.error("Error al crear PoseLandmarker:", error)
       } finally {
         setIsLoading(false)
+        setLoading(false)
       }
     }
 
@@ -654,6 +657,19 @@ const PoseDetection: React.FC = () => {
     console.log('Ver perfil');
   }
 
+  if (loading || isLoading) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-r from-blue-50 to-indigo-50">
+        <div className="relative">
+          <div className="w-16 h-16 border-4 border-blue-200 rounded-full"></div>
+          <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full absolute top-0 left-0 animate-spin"></div>
+        </div>
+        <p className="mt-4 text-lg font-medium text-gray-700">Cargando Detector de Movimientos...</p>
+        <p className="text-sm text-gray-500 mt-2">Inicializando el modelo de detección</p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col items-center justify-center w-full max-w-6xl mx-auto px-4">
       {/* Navbar Offcanvas estilo Bootstrap */}
@@ -682,37 +698,27 @@ const PoseDetection: React.FC = () => {
             <Link href="/dashboard" className="hover:text-gray-600">Dashboard</Link>
             <Link href="/rutines" className="hover:text-gray-600">Rutinas</Link>
             <Link href="/store" className="hover:text-gray-600">Tienda</Link>
+            <Link href="/poseDetection" className="text-blue-600 font-medium hover:text-blue-700 border-b-2 border-blue-600 pb-1">Detector de movimientos</Link>
+            <Link href="/chat" className="hover:text-gray-600">Chat con IA</Link>
           </div>
           <div className="hidden lg:flex gap-2 items-center ml-auto">
-            {user ? (
-              <>
-                <Button
-                  variant="outline"
-                  onClick={handleViewProfile}
-                  className="flex items-center gap-2"
-                >
-                  <UserCircle className="w-5 h-5" /> Perfil
-                </Button>
-                <Button
-                  variant="destructive"
-                  onClick={handleLogout}
-                  className="flex items-center gap-2"
-                >
-                  <span>Cerrar Sesión</span>
-                </Button>
-              </>
-            ) : (
-              <>
-                <Link href="/auth/login">
-                  <Button variant="default">Iniciar Sesión</Button>
-                </Link>
-                <Link href="/auth/register">
-                  <Button variant="default">Registrarse</Button>
-                </Link>
-              </>
-            )}
+            <Button
+              variant="outline"
+              onClick={handleViewProfile}
+              className="flex items-center gap-2"
+            >
+              <UserCircle className="w-5 h-5" /> Perfil
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleLogout}
+              className="flex items-center gap-2"
+            >
+              <span>Cerrar Sesión</span>
+            </Button>
           </div>
         </div>
+
         {/* Offcanvas */}
         <div
           className={`fixed inset-0 z-50 transition-all duration-300 ${offcanvasOpen ? "visible" : "invisible pointer-events-none"}`}
@@ -734,40 +740,29 @@ const PoseDetection: React.FC = () => {
               <Link href="/dashboard" className="hover:text-gray-600" onClick={() => setOffcanvasOpen(false)}>Dashboard</Link>
               <Link href="/rutines" className="hover:text-gray-600" onClick={() => setOffcanvasOpen(false)}>Rutinas</Link>
               <Link href="/store" className="hover:text-gray-600" onClick={() => setOffcanvasOpen(false)}>Tienda</Link>
+              <Link href="/poseDetection" className="text-blue-600" onClick={() => setOffcanvasOpen(false)}>Detector de movimientos</Link>
+              <Link href="/chat" className="hover:text-gray-600" onClick={() => setOffcanvasOpen(false)}>Chat con IA</Link>
               <div className="border-t my-4" />
-              {user ? (
-                <>
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      setOffcanvasOpen(false)
-                      handleViewProfile()
-                    }}
-                    className="flex items-center gap-2 w-full justify-start"
-                  >
-                    <UserCircle className="w-5 h-5" /> Perfil
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    onClick={() => {
-                      setOffcanvasOpen(false)
-                      handleLogout()
-                    }}
-                    className="flex items-center gap-2 w-full justify-start"
-                  >
-                    <span>Cerrar Sesión</span>
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Link href="/auth/login" onClick={() => setOffcanvasOpen(false)}>
-                    <Button variant="default" className="w-full mb-2">Iniciar Sesión</Button>
-                  </Link>
-                  <Link href="/auth/register" onClick={() => setOffcanvasOpen(false)}>
-                    <Button variant="default" className="w-full">Registrarse</Button>
-                  </Link>
-                </>
-              )}
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setOffcanvasOpen(false);
+                  handleViewProfile();
+                }}
+                className="flex items-center gap-2 w-full justify-start"
+              >
+                <UserCircle className="w-5 h-5" /> Perfil
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={() => {
+                  setOffcanvasOpen(false);
+                  handleLogout();
+                }}
+                className="flex items-center gap-2 w-full justify-start"
+              >
+                <span>Cerrar Sesión</span>
+              </Button>
             </nav>
           </aside>
         </div>
