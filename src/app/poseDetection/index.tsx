@@ -23,8 +23,8 @@ import Link from "next/link"
 import { useAuth } from "@/app/contexts/AuthContext"
 import { useRouter } from "next/navigation"
 
+
 // Mapeo de ejercicios a videos de referencia
-// NOTA: Reemplazar las URLs con los videos reales
 const exerciseVideos: Record<string, string> = {
   squat: "https://ejemplo.com/video-squat.mp4",           // Sentadilla libre (Squat)
   deadlift: "https://ejemplo.com/video-deadlift.mp4",     // Peso muerto convencional (Deadlift)
@@ -100,6 +100,8 @@ const ExerciseFeedback: React.FC<{
       return ""
     })
     .filter((tip) => tip !== "")
+
+    
 
   return (
     <div className="bg-white p-4 rounded-lg shadow-md w-full max-w-md">
@@ -652,10 +654,9 @@ const PoseDetection: React.FC = () => {
   const handFeedback = "" // TODO: Implementa la lógica real
 
   // Función para ver el perfil
-  function handleViewProfile() {
-    // Lógica para ver el perfil
-    console.log('Ver perfil');
-  }
+  const handleViewProfile = () => {
+		router.push("/dashboard/profile");
+	};
 
   if (loading || isLoading) {
     return (
@@ -737,7 +738,7 @@ const PoseDetection: React.FC = () => {
             </div>
             <nav className="flex flex-col gap-2 p-4">
               <Link href="/" className="hover:text-gray-600" onClick={() => setOffcanvasOpen(false)}>Inicio</Link>
-              <Link href="/dashboard" className="hover:text-gray-600" onClick={() => setOffcanvasOpen(false)}>Dashboard</Link>
+              <Link href="/dashboard" className="hover:text-gray-600" onClick={() => setOffcanvasOpen(false)}>Panel</Link>
               <Link href="/rutines" className="hover:text-gray-600" onClick={() => setOffcanvasOpen(false)}>Rutinas</Link>
               <Link href="/store" className="hover:text-gray-600" onClick={() => setOffcanvasOpen(false)}>Tienda</Link>
               <Link href="/poseDetection" className="text-blue-600" onClick={() => setOffcanvasOpen(false)}>Detector de movimientos</Link>

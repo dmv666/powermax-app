@@ -150,7 +150,7 @@ export default function PaypalButton({ planId, onSuccess }: PaypalButtonProps) {
     <div 
       ref={containerRef}
       id={`paypal-button-container-${planId}`}
-      className="w-full mt-auto min-h-[45px] flex items-center justify-center"
+      className="w-full mt-auto min-h-[45px] flex items-center justify-center z-0"
     />
   );
 }

@@ -175,7 +175,7 @@ export default function StorePage() {
             <Menu className="w-7 h-7" />
           </button>
           <div className="hidden lg:flex gap-4 items-center ml-8">
-            <Link href="/dashboard" className="hover:text-gray-600">Dashboard</Link>
+            <Link href="/dashboard" className="hover:text-gray-600">Panel</Link>
             <Link href="/rutines" className="hover:text-gray-600">Rutinas</Link>
             <Link 
               href="/store" 

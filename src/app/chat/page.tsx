@@ -22,8 +22,8 @@ export default function ChatPage() {
   }, [user, loading, router]);
 
   const handleViewProfile = () => {
-    router.push("/profile");
-  };
+		router.push("/dashboard/profile");
+	};
 
   const handleLogout = async () => {
     try {
@@ -74,7 +74,7 @@ export default function ChatPage() {
             <Menu className="w-7 h-7" />
           </button>
           <div className="hidden lg:flex gap-4 items-center ml-8">
-            <Link href="/dashboard" className="hover:text-gray-600">Dashboard</Link>
+            <Link href="/dashboard" className="hover:text-gray-600">Panel</Link>
             <Link href="/rutines" className="hover:text-gray-600">Rutinas</Link>
             <Link href="/store" className="hover:text-gray-600">Tienda</Link>
             <Link href="/poseDetection" className="hover:text-gray-600">Detector de movimientos</Link>
