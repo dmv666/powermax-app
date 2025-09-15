@@ -175,7 +175,7 @@ export default function StorePage() {
             <Menu className="w-7 h-7" />
           </button>
           <div className="hidden lg:flex gap-4 items-center ml-8">
-            <Link href="/dashboard" className="hover:text-gray-600">Dashboard</Link>
+            <Link href="/dashboard" className="hover:text-gray-600">Panel</Link>
             <Link href="/rutines" className="hover:text-gray-600">Rutinas</Link>
             <Link 
               href="/store" 
@@ -230,7 +230,7 @@ export default function StorePage() {
             </div>
             <nav className="flex flex-col gap-2 p-4">
               <Link href="/" className="hover:text-gray-600" onClick={() => setOffcanvasOpen(false)}>Inicio</Link>
-              <Link href="/dashboard" className="hover:text-gray-600" onClick={() => setOffcanvasOpen(false)}>Dashboard</Link>
+              <Link href="/dashboard" className="hover:text-gray-600" onClick={() => setOffcanvasOpen(false)}>Panel</Link>
               <Link href="/rutines" className="hover:text-gray-600" onClick={() => setOffcanvasOpen(false)}>Rutinas</Link>
               <Link href="/store" className="text-blue-600 font-medium hover:text-blue-700" onClick={() => setOffcanvasOpen(false)}>Tienda</Link>
               <Link href="/poseDetection" className="hover:text-gray-600" onClick={() => setOffcanvasOpen(false)}>Detector de movimientos</Link>

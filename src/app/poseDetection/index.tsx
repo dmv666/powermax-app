@@ -201,6 +201,7 @@ const PoseDetection: React.FC = () => {
   const lastDetectionTimeRef = useRef<number>(0)
   const detectedPoseRef = useRef<any>(null)
   const smoothedLandmarksRef = useRef<SmoothedLandmark[]>([])
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { user } = useAuth()
   const router = useRouter()
   const [offcanvasOpen, setOffcanvasOpen] = useState(false)
@@ -654,7 +655,7 @@ const PoseDetection: React.FC = () => {
   // Función para ver el perfil
   function handleViewProfile() {
     // Lógica para ver el perfil
-    console.log('Ver perfil');
+    router.push("/dashboard/profile");
   }
 
   if (loading || isLoading) {
@@ -695,7 +696,7 @@ const PoseDetection: React.FC = () => {
             <Menu className="w-7 h-7" />
           </button>
           <div className="hidden lg:flex gap-4 items-center ml-8">
-            <Link href="/dashboard" className="hover:text-gray-600">Dashboard</Link>
+            <Link href="/dashboard" className="hover:text-gray-600">Panel</Link>
             <Link href="/rutines" className="hover:text-gray-600">Rutinas</Link>
             <Link href="/store" className="hover:text-gray-600">Tienda</Link>
             <Link href="/poseDetection" className="text-blue-600 font-medium hover:text-blue-700 border-b-2 border-blue-600 pb-1">Detector de movimientos</Link>
@@ -737,7 +738,7 @@ const PoseDetection: React.FC = () => {
             </div>
             <nav className="flex flex-col gap-2 p-4">
               <Link href="/" className="hover:text-gray-600" onClick={() => setOffcanvasOpen(false)}>Inicio</Link>
-              <Link href="/dashboard" className="hover:text-gray-600" onClick={() => setOffcanvasOpen(false)}>Dashboard</Link>
+              <Link href="/dashboard" className="hover:text-gray-600" onClick={() => setOffcanvasOpen(false)}>Panel</Link>
               <Link href="/rutines" className="hover:text-gray-600" onClick={() => setOffcanvasOpen(false)}>Rutinas</Link>
               <Link href="/store" className="hover:text-gray-600" onClick={() => setOffcanvasOpen(false)}>Tienda</Link>
               <Link href="/poseDetection" className="text-blue-600" onClick={() => setOffcanvasOpen(false)}>Detector de movimientos</Link>
