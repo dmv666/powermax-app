@@ -8,10 +8,7 @@ export type RutinaTipo = "mantenimiento" | "tonificar" | "bajar de peso" | "gana
 export const rutinasPorTipo: Record<RutinaTipo, Rutina[]> = {
   mantenimiento: [
     { dia: "Lunes", ejercicios: ["Caminata 30min", "Flexiones 3x10", "Abdominales 3x15", "Estiramientos 10min"] },
-    { dia: "Lunes", ejercicios: ["Yoga suave 30min", "Plancha 3x30seg", "Puente de glúteos 3x12"] },
     { dia: "Miércoles", ejercicios: ["Bicicleta estática 40min", "Sentadillas al aire 3x12", "Elevación de talones 3x15"] },
-    { dia: "Miércoles", ejercicios: ["Elíptica 35min", "Zancadas 3x10 por pierna", "Bird-dog 3x12"] },
-    { dia: "Viernes", ejercicios: ["Natación 30min", "Pájaros con mancuernas ligeras 3x12", "Abdominales bicicleta 3x20"] },
     { dia: "Viernes", ejercicios: ["Baile o clase de cardio 45min", "Círculos de brazos 3x15", "Estiramientos completos 10min"] }
   ],
   tonificar: [
