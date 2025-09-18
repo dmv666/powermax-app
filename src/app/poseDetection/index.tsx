@@ -26,17 +26,17 @@ import { useRouter } from "next/navigation"
 
 // Mapeo de ejercicios a videos de referencia
 const exerciseVideos: Record<string, string> = {
-  squat: "https://ejemplo.com/video-squat.mp4",           // Sentadilla libre (Squat)
-  deadlift: "https://ejemplo.com/video-deadlift.mp4",     // Peso muerto convencional (Deadlift)
-  lunges: "https://ejemplo.com/video-lunges.mp4",         // Zancadas (Lunges)
-  calfRaises: "https://ejemplo.com/video-calfraises.mp4",  // Elevación de talones (Calf raises)
-  benchPress: "https://ejemplo.com/video-benchpress.mp4",  // Press de banca (Bench press)
-  dips: "https://ejemplo.com/video-dips.mp4",              // Fondos en paralelas (Dips)
-  latPulldown: "https://ejemplo.com/video-latpulldown.mp4",// Jalón al pecho (Lat Pulldown)
-  pullUps: "https://ejemplo.com/video-pullups.mp4",        // Dominadas (Pull-ups)
-  shoulderPress: "https://ejemplo.com/video-shoulderpress.mp4", // Press militar (Shoulder Press)
-  barbellRow: "https://ejemplo.com/video-barbellrow.mp4",  // Remo con barra (Barbell Row)
-  bicepsCurl: "https://ejemplo.com/video-bicepscurl.mp4",  // Curl de bíceps (Biceps Curl)
+  squat: "https://res.cloudinary.com/dbeaem1xr/video/upload/v1758210018/WhatsApp_Video_2025-09-18_at_8.06.22_AM_tdsr4i.mp4",           // Sentadilla libre (Squat)
+  deadlift: "https://res.cloudinary.com/dbeaem1xr/video/upload/v1758210014/WhatsApp_Video_2025-09-18_at_8.06.21_AM_1_tt3bha.mp4",     // Peso muerto convencional (Deadlift)
+  lunges: "https://res.cloudinary.com/dbeaem1xr/video/upload/v1758210022/WhatsApp_Video_2025-09-18_at_8.06.26_AM_hjjae6.mp4",         // Zancadas (Lunges)
+  calfRaises: "https://res.cloudinary.com/dbeaem1xr/video/upload/v1758209989/WhatsApp_Video_2025-09-18_at_8.06.11_AM_1_tasmaa.mp4",  // Elevación de talones (Calf raises)
+  benchPress: "https://res.cloudinary.com/dbeaem1xr/video/upload/v1758210016/WhatsApp_Video_2025-09-18_at_8.06.21_AM_2_tywkaw.mp4",  // Press de banca (Bench press)
+  dips: "https://res.cloudinary.com/dbeaem1xr/video/upload/v1758209902/WhatsApp_Video_2025-09-18_at_8.06.10_AM_1_yb7qv1.mp4",              // Fondos en paralelas (Dips)
+  latPulldown: "https://res.cloudinary.com/dbeaem1xr/video/upload/v1758210009/WhatsApp_Video_2025-09-18_at_8.06.11_AM_2_sv4jpm.mp4",// Jalón al pecho (Lat Pulldown)
+  pullUps: "https://res.cloudinary.com/dbeaem1xr/video/upload/v1758209938/WhatsApp_Video_2025-09-18_at_8.06.11_AM_htdgif.mp4",        // Dominadas (Pull-ups)
+  shoulderPress: "https://res.cloudinary.com/dbeaem1xr/video/upload/v1758210011/WhatsApp_Video_2025-09-18_at_8.06.21_AM_uhz0ia.mp4", // Press militar (Shoulder Press)
+  barbellRow: "https://res.cloudinary.com/dbeaem1xr/video/upload/v1758210020/WhatsApp_Video_2025-09-18_at_8.06.22_AM_1_itowu5.mp4",  // Remo con barra (Barbell Row)
+  bicepsCurl: "https://res.cloudinary.com/dbeaem1xr/video/upload/v1758209819/WhatsApp_Video_2025-09-18_at_8.06.10_AM_s4pmab.mp4",  // Curl de bíceps (Biceps Curl)
 }
 
 // Componente de feedback corregido y completo
