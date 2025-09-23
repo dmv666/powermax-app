@@ -10,6 +10,8 @@ interface ProductModalProps {
     price: number | string;
     image: string;
     description: string;
+    calories?: number;
+    protein?: number;
     [key: string]: unknown;
   } | null;
 }
@@ -17,30 +19,45 @@ interface ProductModalProps {
 export default function ProductModal({ open, onClose, product }: ProductModalProps) {
   if (!product) return null;
 
+  const formattedPrice = Number(product.price).toLocaleString("es-CO", {
+    style: "currency",
+    currency: "COP",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  });
+
   return (
     <Dialog open={open} onClose={onClose} className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="fixed inset-0 bg-black/40" aria-hidden="true" />
-      <div className="relative bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-6 z-50">
+      <div className="relative bg-white rounded-2xl shadow-2xl max-w-3xl w-full p-8 z-50 flex flex-row gap-8 items-center">
         <button
-          className="absolute top-3 right-3 text-gray-500 hover:text-red-500"
+          className="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition-colors"
           onClick={onClose}
         >
           <X className="w-6 h-6" />
         </button>
-        <div className="flex flex-col md:flex-row items-center gap-6">
+        <div className="flex-shrink-0 flex items-center justify-center w-64 h-64">
           <Image
             src={product.image}
             alt={product.name}
-            width={180}
-            height={180}
-            className="rounded-xl object-cover"
+            width={220}
+            height={220}
+            className="rounded-xl object-contain bg-gray-50 shadow max-h-56"
           />
-          <div className="flex-1 flex flex-col items-start">
-            <h2 className="text-2xl font-bold mb-2">{product.name}</h2>
-            <p className="text-lg font-semibold text-blue-600 mb-2">${product.price}</p>
-            <p className="text-gray-700 mb-4">{product.description}</p>
-            {/* Aquí puedes agregar más propiedades si las tienes */}
+        </div>
+        <div className="flex-1 flex flex-col justify-center min-w-0">
+          <h2 className="text-2xl font-bold mb-2 text-gray-800">{product.name}</h2>
+          <p className="text-xl font-semibold text-blue-600 mb-4">{formattedPrice}</p>
+          <div className="text-gray-700 leading-relaxed whitespace-pre-line overflow-y-auto max-h-64 pr-2">
+            {product.description}
           </div>
+          {/* Información adicional si existe */}
+          {product.calories && (
+            <p className="text-sm text-gray-600 mt-4">Calorías: <span className="font-semibold">{product.calories}</span></p>
+          )}
+          {product.protein && (
+            <p className="text-sm text-gray-600">Proteína: <span className="font-semibold">{product.protein}g</span></p>
+          )}
         </div>
       </div>
     </Dialog>
