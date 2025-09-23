@@ -50,17 +50,6 @@ export const exercises: Exercise[] = [
     requiresCorrelation: true,
   },
   {
-    id: "calfRaises",
-    name: "Elevación de talones (Calf raises)",
-    joints: ["leftAnkle", "rightAnkle"],
-    description: "Articulaciones: Tobillo | Ángulos: Tobillo 10°-20°",
-    angleRanges: {
-      leftAnkle: { min: 10, max: 20, warning: 5, deadZone: 30 },
-      rightAnkle: { min: 10, max: 20, warning: 5, deadZone: 30 },
-    },
-    requiresCorrelation: true,
-  },
-  {
     id: "benchPress",
     name: "Press de banca (Bench press)",
     joints: ["leftShoulder", "rightShoulder", "leftElbow", "rightElbow", "leftWrist", "rightWrist"],

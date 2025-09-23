@@ -29,7 +29,6 @@ const exerciseVideos: Record<string, string> = {
   squat: "https://res.cloudinary.com/dbeaem1xr/video/upload/v1758210018/WhatsApp_Video_2025-09-18_at_8.06.22_AM_tdsr4i.mp4",           // Sentadilla libre (Squat)
   deadlift: "https://res.cloudinary.com/dbeaem1xr/video/upload/v1758210014/WhatsApp_Video_2025-09-18_at_8.06.21_AM_1_tt3bha.mp4",     // Peso muerto convencional (Deadlift)
   lunges: "https://res.cloudinary.com/dbeaem1xr/video/upload/v1758210022/WhatsApp_Video_2025-09-18_at_8.06.26_AM_hjjae6.mp4",         // Zancadas (Lunges)
-  calfRaises: "https://res.cloudinary.com/dbeaem1xr/video/upload/v1758209989/WhatsApp_Video_2025-09-18_at_8.06.11_AM_1_tasmaa.mp4",  // Elevación de talones (Calf raises)
   benchPress: "https://res.cloudinary.com/dbeaem1xr/video/upload/v1758210016/WhatsApp_Video_2025-09-18_at_8.06.21_AM_2_tywkaw.mp4",  // Press de banca (Bench press)
   dips: "https://res.cloudinary.com/dbeaem1xr/video/upload/v1758209902/WhatsApp_Video_2025-09-18_at_8.06.10_AM_1_yb7qv1.mp4",              // Fondos en paralelas (Dips)
   latPulldown: "https://res.cloudinary.com/dbeaem1xr/video/upload/v1758210009/WhatsApp_Video_2025-09-18_at_8.06.11_AM_2_sv4jpm.mp4",// Jalón al pecho (Lat Pulldown)
@@ -44,22 +43,18 @@ const ExerciseFeedback: React.FC<{
   exercise: (typeof exercises)[0] | null
   angles: { [key: string]: number }
   angleStates: { [key: string]: AngleState }
-  gripCorrect: boolean
-  handFeedback: string
+  
   progress: number
   isCorrect: boolean
-  repetitionCount: number
-  exerciseTimer: number
+
 }> = ({
   exercise,
   angles,
   angleStates,
-  gripCorrect,
-  handFeedback,
+  
   progress,
   isCorrect,
-  repetitionCount,
-  exerciseTimer,
+  
 }) => {
   if (!exercise) return null
 
@@ -123,26 +118,6 @@ const ExerciseFeedback: React.FC<{
           ></div>
         </div>
       </div>
-
-      {/* Contador de repeticiones */}
-      {(exercise.id === "squat" ||
-        exercise.id === "benchPress" ||
-        exercise.id === "shoulderPress" ||
-        exercise.id === "deadlift") && (
-        <div className="mb-4 text-center">
-          <span className="text-3xl font-bold">{repetitionCount}</span>
-          <span className="text-lg ml-2">repeticiones</span>
-        </div>
-      )}
-
-      {/* Timer para ejercicios estáticos */}
-      {(exercise.id === "plank" || exercise.id === "sidePlank") && (
-        <div className="mb-4 text-center">
-          <span className="text-3xl font-bold">{Math.floor(exerciseTimer)}</span>
-          <span className="text-lg ml-2">segundos</span>
-        </div>
-      )}
-
       {/* Estado general */}
       <div
         className={`p-3 rounded-lg mb-4 text-center ${
@@ -164,15 +139,6 @@ const ExerciseFeedback: React.FC<{
               </li>
             ))}
           </ul>
-        </div>
-      )}
-
-      {(exercise.id === "latPulldown" || exercise.id === "pullUps") && (
-        <div className={`p-2 rounded ${gripCorrect ? "bg-green-100" : "bg-yellow-100"} mt-2`}>
-          <p className="text-sm font-medium">
-            <span className="font-bold">Agarre: </span>
-            {handFeedback}
-          </p>
         </div>
       )}
 
@@ -819,10 +785,9 @@ const PoseDetection: React.FC = () => {
           <option value="default">Seleccionar Articulación Izquierda</option>
           <option value="leftShoulder">Hombro Izquierdo</option>
           <option value="leftElbow">Codo Izquierdo</option>
-          <option value="leftWrist">Muñeca Izquierda</option>
           <option value="leftHip">Cadera Izquierda</option>
           <option value="leftKnee">Rodilla Izquierda</option>
-          <option value="leftAnkle">Tobillo Izquierdo</option>
+          
         </select>
 
         <select
@@ -835,10 +800,10 @@ const PoseDetection: React.FC = () => {
           <option value="default">Seleccionar Articulación Derecha</option>
           <option value="rightShoulder">Hombro Derecho</option>
           <option value="rightElbow">Codo Derecho</option>
-          <option value="rightWrist">Muñeca Derecha</option>
+        
           <option value="rightHip">Cadera Derecha</option>
           <option value="rightKnee">Rodilla Derecha</option>
-          <option value="rightAnkle">Tobillo Derecho</option>
+          
         </select>
       </div>
 
@@ -891,7 +856,7 @@ const PoseDetection: React.FC = () => {
   </div>
 
   {/* Panel derecho: instrucciones + feedback + video de referencia */}
-  <div className="flex flex-col gap-4 w-full max-w-[400px] lg:w-[400px]">
+  < div className="flex flex-col gap-4 w-full max-w-[400px]  lg:w-[400px]">
     {/* Instrucciones generales */}
     {!selectedExercise && (
       <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
@@ -908,17 +873,17 @@ const PoseDetection: React.FC = () => {
 
     {/* Componente de feedback */}
     {selectedExercise && (
+      <div className="max-h-[300px] overflow-y-auto">
       <ExerciseFeedback
         exercise={selectedExercise}
         angles={angles}
         angleStates={angleStates}
-        gripCorrect={gripCorrect}
-        handFeedback={handFeedback}
         progress={progress}
         isCorrect={isCorrect}
-        repetitionCount={repetitionCount}
-        exerciseTimer={exerciseTimer}
+        
+       
       />
+      </div>
     )}
 
     {/* Video de referencia */}

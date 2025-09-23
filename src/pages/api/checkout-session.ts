@@ -18,11 +18,26 @@ export default async function handler(
     }
 
     const session = await stripe.checkout.sessions.retrieve(session_id, {
-      expand: ["payment_intent.payment_method", "payment_intent.charges"],
+      expand: ["payment_intent.payment_method", "payment_intent.charges", "line_items", "customer_details"],
     });
 
     const charge = (session.payment_intent as any).charges.data[0];
-    res.status(200).json({ receipt_url: charge.receipt_url });
+    const lineItems = session.line_items?.data || [];
+    const customer = session.customer_details;
+
+    res.status(200).json({
+      receipt_url: charge.receipt_url,
+      products: lineItems.map((item: any) => ({
+        name: item.description,
+        quantity: item.quantity,
+        price: (item.amount_total / 100).toFixed(2),
+      })),
+      total: ((session.amount_total ?? 0) / 100).toFixed(2),
+      customer: {
+        name: customer?.name,
+        email: customer?.email,
+      },
+    });
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
