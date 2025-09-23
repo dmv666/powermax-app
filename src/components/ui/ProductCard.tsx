@@ -38,7 +38,9 @@ export default function ProductCard({ product, isAdmin, onDelete }: ProductCardP
         <div>
           <h2 className="text-2xl font-bold mb-2">{product.name}</h2>
           <p className="text-sm text-gray-200 leading-relaxed">
-            {product.description}
+            {product.description.length > 30
+          ? product.description.slice(0, 30) + "..."
+          : product.description}
           </p>
         </div>
         <Button

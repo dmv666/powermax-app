@@ -190,7 +190,7 @@ export default function Home() {
               </div>
               <nav className="flex flex-col gap-2 p-4">
                 <Link href="/" className="hover:text-gray-600" onClick={() => setOffcanvasOpen(false)}>Inicio</Link>
-                <Link href="/dashboard" className="hover:text-gray-600" onClick={() => setOffcanvasOpen(false)}>Dashboard</Link>
+                <Link href="/dashboard" className="hover:text-gray-600" onClick={() => setOffcanvasOpen(false)}>Panel</Link>
                 <Link href="/rutines" className="hover:text-gray-600" onClick={() => setOffcanvasOpen(false)}>Rutinas</Link>
                 <Link href="/store" className="hover:text-gray-600" onClick={() => setOffcanvasOpen(false)}>Tienda</Link>
                 <Link href="/poseDetection" className="hover:text-gray-600" onClick={() => setOffcanvasOpen(false)}>Detector de movimientos</Link>
@@ -246,7 +246,6 @@ export default function Home() {
             <div className="hidden lg:flex gap-4 items-center ml-8">
               <Link href="/rutines" className="hover:text-gray-600">Rutinas</Link>
               <Link href="/store" className="hover:text-gray-600">Tienda</Link>
-              <Link href="/dashboard" className="hover:text-gray-600">Dashboard</Link>
             </div>
             <div className="hidden lg:flex gap-2 items-center ml-auto">
               <Link href="/auth/login">
@@ -279,10 +278,8 @@ export default function Home() {
                 </button>
               </div>
               <nav className="flex flex-col gap-2 p-4">
-                <Link href="/" className="hover:text-gray-600" onClick={() => setOffcanvasOpen(false)}>Inicio</Link>
                 <Link href="/rutines" className="hover:text-gray-600" onClick={() => setOffcanvasOpen(false)}>Rutinas</Link>
                 <Link href="/store" className="hover:text-gray-600" onClick={() => setOffcanvasOpen(false)}>Tienda</Link>
-                <Link href="/dashboard" className="hover:text-gray-600" onClick={() => setOffcanvasOpen(false)}>Dashboard</Link>
                 <div className="border-t my-4" />
                 <Link 
                   href="/auth/login" 
@@ -353,7 +350,7 @@ export default function Home() {
                 <BarChart className="h-5 w-5" /><span>Nivel: Intermedio</span>
               </div>
             </div>
-            <Link href="/rutines/fuerza" className="w-full">
+            <Link href="/rutines/" className="w-full">
             <Button className="w-full">Comenzar</Button>
             </Link>
           </Card>
@@ -372,7 +369,7 @@ export default function Home() {
                 <BarChart className="h-5 w-5" /><span>Nivel: Principiante</span>
               </div>
             </div>
-            <Link href="/rutines/cardio" className="w-full">
+            <Link href="/rutines/" className="w-full">
             <Button className="w-full">Comenzar</Button>
             </Link>
           </Card>
@@ -391,7 +388,7 @@ export default function Home() {
                 <BarChart className="h-5 w-5" /><span>Nivel: Todos los niveles</span>
               </div>
             </div>
-            <Link href="/rutines/yoga" className="w-full">
+            <Link href="/rutines/" className="w-full">
             <Button className="w-full">Comenzar</Button>
             </Link>
             

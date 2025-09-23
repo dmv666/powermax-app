@@ -18,6 +18,7 @@ import { useCart, Product } from "@/app/contexts/CartContext";
 import ProductCard from "@/components/ui/ProductCard";
 import CartSidebar from "@/components/ui/CartSidebar";
 import { Badge } from "@/components/ui/badge";
+import ProductModal from "@/components/ui/ProductModal";
 
 // Componentes de UI y Iconos
 import { Button } from "@/components/ui/button";
@@ -49,6 +50,10 @@ export default function StorePage() {
 
   // Estado para el menú hamburguesa (offcanvas)
   const [offcanvasOpen, setOffcanvasOpen] = useState(false);
+
+  // NUEVO: Estado para el modal de producto
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [showProductModal, setShowProductModal] = useState(false);
 
   useEffect(() => {
     if (user === undefined) return;
@@ -305,14 +310,29 @@ export default function StorePage() {
         {/* CAMBIO: Se usa el nuevo componente ProductCard para renderizar los productos */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-8">
           {products.map((product) => (
-            <ProductCard
+            <div
               key={product.id}
-              product={product}
-              isAdmin={isAdmin}
-              onDelete={handleDeleteProduct}
-            />
+              className="cursor-pointer"
+              onClick={() => {
+                setSelectedProduct(product);
+                setShowProductModal(true);
+              }}
+            >
+              <ProductCard
+                product={product}
+                isAdmin={isAdmin}
+                onDelete={handleDeleteProduct}
+              />
+            </div>
           ))}
         </div>
+
+        {/* Modal de producto */}
+        <ProductModal
+          open={showProductModal}
+          onClose={() => setShowProductModal(false)}
+          product={selectedProduct}
+        />
 
         {isAdmin && (
           <div className="mt-12 mx-auto max-w-lg bg-white/90 rounded-2xl shadow-2xl p-8">
