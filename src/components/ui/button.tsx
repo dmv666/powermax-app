@@ -5,7 +5,6 @@ import { cn } from "@/lib/utils"
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
-  onClick?: () => void;
   className?: string;
   asChild?: boolean
   variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link"

@@ -44,7 +44,10 @@ export default function ProductCard({ product, isAdmin, onDelete }: ProductCardP
           </p>
         </div>
         <Button
-          onClick={() => addToCart(product)}
+          onClick={e => {
+            e.stopPropagation(); // <-- Esto evita que se abra el modal
+            addToCart(product);
+          }}
           className="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold flex items-center gap-2 transition-colors"
         >
           <ShoppingCart className="w-5 h-5" />
@@ -55,7 +58,10 @@ export default function ProductCard({ product, isAdmin, onDelete }: ProductCardP
       {/* Botón de eliminar para el admin */}
       {isAdmin && (
         <Button
-          onClick={() => onDelete(product.id)}
+          onClick={e => {
+             e.stopPropagation();
+             onDelete(product.id);
+          }}
           variant="ghost"
           className="absolute top-3 right-3 bg-white/80 hover:bg-red-100 p-2 rounded-full shadow transition z-10"
           title="Eliminar producto"
