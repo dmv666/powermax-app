@@ -60,6 +60,7 @@ const ExerciseFeedback: React.FC<{
 
   // Calcular porcentaje de corrección general
   const totalJoints = exercise.joints.length
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const correctJoints = Object.entries(angleStates).filter(([joint, state]) => state === AngleState.GOOD).length
   const correctPercentage = totalJoints > 0 ? Math.round((correctJoints / totalJoints) * 100) : 0
 

@@ -58,7 +58,7 @@ const Chat: React.FC = () => {
     let prompt = "";
     if (option === "dieta") {
       const { objetivo, edad, peso, altura, genero, restricciones } = form as DietaForm;
-      prompt = `Crea una dieta personalizada para una persona con el siguiente objetivo: ${objetivo}, edad: ${edad}, peso: ${peso}kg, altura: ${altura}cm, género: ${genero}, alergias o restricciones: ${restricciones || 'ninguna'}. La dieta debe ser saludable, segura y estar bien estructurada por comidas (desayuno, almuerzo, cena, snacks).`;
+      prompt = `Crea una dieta personalizada para una persona con el siguiente objetivo: ${objetivo}, edad: ${edad}, peso: ${peso}kg, altura: ${altura}cm, género: ${genero}, alergias o restricciones: ${restricciones || 'ninguna'}. La dieta debe ser saludable, segura y estar bien estructurada por comidas (desayuno, almuerzo, cena, snacks), incluye los pesos de las porciones de cada alimento en gramos, y la cantidad de calorias que incluye cada una.`;
     } else if (option === "rutina") {
       const { objetivo, edad, experiencia, lugar, genero } = form as RutinaForm;
       prompt = `Crea una rutina de ejercicio personalizada para una semana completa con el objetivo de: ${objetivo}, edad: ${edad}, nivel de experiencia: ${experiencia}, lugar de entrenamiento: ${lugar}, género: ${genero}. Asegúrate de que sea detallada, adecuada y progresiva, incluyendo ejercicios, series, repeticiones y descansos.`;
@@ -72,7 +72,7 @@ const Chat: React.FC = () => {
       });
       const data = await res.json();
       setResponse(data.result || "No se pudo generar una respuesta.");
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
       setResponse("Ocurrió un error al conectar con el servidor. Inténtalo de nuevo.");
     }
